@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malta z Mamą</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+<style>
+/* Layout: single readable column, sticky day-nav, luzzu-boat stripe as the one flourish */
+:root{
+  --bg:#f6f7f8; --surface:#ffffff; --fg:#14232f; --muted:#56656f; --line:#dde3e7;
+  --harbor:#0f4c75; --harbor-soft:#e3eef6; --luzzu:#f2b81d; --luzzu-red:#c8372d; --luzzu-green:#2f7d4e;
+  --tip:#fff7dc; --tip-line:#f0d27a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e171e; --surface:#15222c; --fg:#e8eef2; --muted:#9db0bd; --line:#26384a;
+  --harbor:#7cc0ec; --harbor-soft:#17324a; --luzzu:#f5c444; --luzzu-red:#ef6b5f; --luzzu-green:#5cbf84;
+  --tip:#2b2614; --tip-line:#6b5a22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e171e; --surface:#15222c; --fg:#e8eef2; --muted:#9db0bd; --line:#26384a;
+  --harbor:#7cc0ec; --harbor-soft:#17324a; --luzzu:#f5c444; --luzzu-red:#ef6b5f; --luzzu-green:#5cbf84;
+  --tip:#2b2614; --tip-line:#6b5a22; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.55}
+.wrap{max-width:760px;margin:0 auto;padding-inline:18px;padding-block:0 64px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+a{color:var(--harbor)}
+:focus-visible{outline:3px solid var(--luzzu);outline-offset:2px}
+
+.stripe{height:8px;background:linear-gradient(90deg,var(--luzzu-red) 0 25%,var(--luzzu) 25% 50%,var(--harbor) 50% 75%,var(--luzzu-green) 75%)}
+header.hero{padding-block:36px 24px}
+.eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.hero h1{font-size:clamp(2.4rem,7vw,3.6rem);font-weight:800;margin-top:8px;color:var(--harbor)}
+.hero p{margin:12px 0 0;max-width:60ch;color:var(--muted)}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:15px;font-weight:600}
+
+nav.days{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-18px;padding:10px 18px;display:flex;gap:6px;overflow-x:auto}
+nav.days a{flex:none;text-decoration:none;color:var(--fg);font-weight:600;font-size:15px;padding:6px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+nav.days a:hover{border-color:var(--harbor);color:var(--harbor)}
+nav.days a[aria-selected="true"]{background:var(--harbor);border-color:var(--harbor);color:var(--surface)}
+[hidden]{display:none!important}
+.tabpanel{margin-top:24px}
+
+section{margin-top:40px;scroll-margin-top:64px}
+section>h2{font-size:1.7rem;font-weight:700}
+.sub{color:var(--muted);margin:6px 0 0}
+
+.flights{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:16px}
+.flight{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.flight .code{font-size:14px;color:var(--muted);font-weight:700;letter-spacing:.06em}
+.flight .route{font-family:var(--display);font-size:1.3rem;font-weight:700;margin-top:2px}
+.flight .times{display:flex;gap:18px;margin-top:10px;font-variant-numeric:tabular-nums}
+.flight .times b{display:block;font-size:1.6rem;font-family:var(--display);color:var(--harbor)}
+.flight .times span{font-size:14px;color:var(--muted)}
+
+.hotel{margin-top:16px;background:var(--harbor-soft);border-radius:12px;padding:18px}
+.hotel h3{font-size:1.3rem}
+.addr{font-size:1.15rem;font-weight:700;margin:6px 0 10px}
+.copy{font:inherit;font-size:14px;font-weight:700;border:1px solid var(--harbor);background:var(--surface);color:var(--harbor);border-radius:8px;padding:6px 12px;cursor:pointer}
+dl.kv{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:14px 0 0}
+dl.kv dt{color:var(--muted);font-weight:600}
+dl.kv dd{margin:0;min-width:0}
+
+.day{margin-top:44px}
+.dayhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:3px solid var(--fg);padding-bottom:8px}
+.dayhead .date{font-family:var(--display);font-size:2.4rem;font-weight:800;color:var(--harbor);font-variant-numeric:tabular-nums}
+.dayhead h2{font-size:1.45rem}
+.dayhead .wd{color:var(--muted);font-weight:600;width:100%;font-size:15px}
+.badge{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;margin-top:10px}
+.b-taxi{background:var(--luzzu);color:#14232f}
+.b-bus{background:var(--luzzu-red);color:#fff}
+.b-easy{background:var(--luzzu-green);color:#fff}
+
+ol.tl{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:0}
+ol.tl li{display:grid;grid-template-columns:62px 1fr;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+ol.tl li:last-child{border-bottom:0}
+.t{font-variant-numeric:tabular-nums;font-weight:700;color:var(--harbor);font-size:16px}
+.what{min-width:0}
+.what b{display:block;font-size:1.05rem}
+.what p{margin:2px 0 0;color:var(--muted)}
+.tip{margin-top:14px;background:var(--tip);border:1px solid var(--tip-line);border-radius:10px;padding:12px 14px;font-size:16px}
+.tip strong{display:block}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h3{font-size:1.15rem;margin-bottom:6px}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:3px 0}
+
+.tablewrap{overflow-x:auto;margin-top:14px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;background:var(--surface);border-radius:12px;overflow:hidden}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+
+ul.check{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:8px}
+ul.check label{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer}
+ul.check input{width:22px;height:22px;flex:none;margin-top:2px;accent-color:var(--luzzu-green)}
+ul.check input:checked + span{text-decoration:line-through;color:var(--muted)}
+ul.check small{display:block;color:var(--muted);font-size:14px}
+
+blockquote{margin:12px 0 0;padding:12px 14px;border-left:4px solid var(--harbor);background:var(--surface);border-radius:0 10px 10px 0;font-style:italic}
+footer{margin-top:48px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:480px){ol.tl li{grid-template-columns:52px 1fr;gap:10px}.dayhead .date{font-size:2rem}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+.decide{margin-top:12px;background:#fff6e5;border:2px dashed #d97a00;border-radius:12px;padding:12px 14px;font-size:16px}
+.decide strong{display:block;color:#8a4b00}
+.variant{margin-top:18px;border-left:5px solid #d97a00;padding-left:12px}
+.variant h3{font-size:1.2rem;margin:0 0 4px}
+.pc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:8px}
+.pc div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:15px}
+.pc ul{margin:4px 0 0;padding-left:18px}
+</style>
+<style>
+/* Dodatki: mapa, lista miejsc, ostrzeżenia */
+.warn{margin-top:14px;background:#fdecea;border:1px solid #f1b0a9;border-radius:10px;padding:12px 14px;font-size:16px;color:#14232f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .warn{background:#3a1d1a;border-color:#7a3a33;color:var(--fg)}}
+.warn strong{display:block}
+ul.fix{margin:14px 0 0;padding-left:20px}
+ul.fix li{margin:8px 0}
+ul.fix small{color:var(--muted)}
+#map{height:460px;border-radius:12px;border:1px solid var(--line);margin-top:16px;background:var(--harbor-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.legend button{font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.legend button[aria-pressed="false"]{opacity:.45}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;flex:none}
+.plist h3{font-size:1.15rem;margin-top:22px;display:flex;align-items:center;gap:8px}
+.plist ul{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:8px}
+.plist li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.plist li b{display:block}
+.plist li p{margin:2px 0 4px;color:var(--muted);font-size:15px}
+.gm{font-size:14px;font-weight:700}
+.rest .card p{margin:4px 0;color:var(--muted);font-size:15px}
+.mapnote{color:var(--muted);font-size:14px;margin-top:8px}
+.leaflet-popup-content{font-family:var(--body);font-size:15px;line-height:1.4}
+</style>
+</head>
+<body>
+
+<div class="stripe" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Mama · Agnieszka · Marzena</div>
+    <h1>Malta z Mamą</h1>
+    <p>Spokojne tempo i dużo widoków. Jedna główna atrakcja dziennie, po południu odpoczynek. Plan poprawiony 19.10.2026 po sprawdzeniu godzin, cen i dojazdów.</p>
+    <div class="facts">
+      <span class="chip">2–6 listopada 2026</span>
+      <span class="chip">4 noce · 3 osoby</span>
+      <span class="chip">Sliema</span>
+      <span class="chip">ok. 20°C, zachód słońca ok. 17:05</span>
+      <span class="chip">bez autobusów: Bolt i taksówki</span>
+      <span class="chip">ten sam czas co w Polsce</span>
+    </div>
+  </header>
+
+  <nav class="days" aria-label="Sekcje" role="tablist">
+    <a href="#zmiany">Co zmieniłyśmy</a>
+    <a href="#podroz">Lot i hotel</a>
+    <a href="#d2">Pon 2.11</a>
+    <a href="#d3">Wt 3.11</a>
+    <a href="#d4">Śr 4.11</a>
+    <a href="#d5">Czw 5.11</a>
+    <a href="#d6">Pt 6.11</a>
+    <a href="#jedzenie">Restauracje</a>
+    <a href="#mapa">Mapa</a>
+    <a href="#transport">Transport</a>
+    <a href="#lista">Do zrobienia</a>
+  </nav>
+
+  <section id="zmiany">
+    <h2>Co zmieniłyśmy w planie i dlaczego</h2>
+    <p class="sub">Wynik sprawdzenia z 19.10.2026. Źródła są w zakładce „Transport” i w pliku plan-poprawiony.md.</p>
+    <ul class="fix">
+      <li><b>Decyzja: bez autobusów, bez hop-on i bez karty Explore Flex.</b> Wszędzie jeździmy Boltem lub taksówką, a w środę jedziemy na wycieczkę autem z przewodnikiem.</li>
+      <li><b>Środa: wycieczka „Malta North” z przewodnikiem</b> (65 €, Bolt na miejsce zbiórki ok. 14 €). Golden Bay i Għajn Tuffieħa z góry, Mġarr, Manikata, Ġnejna, Popeye Village, Czerwona i Biała Wieża, Madonna na klifach Aħrax, widok na Gozo i Comino.</li>
+      <li><b>Czwartek: dzień na plaży, do wyboru Mellieħa Bay albo St George's Bay.</b> Mdina i rejs po porcie zostają jako warianty zapasowe. Rejs startuje z Sliema Ferries, nie spod windy Barrakka, jak zakładał stary plan.</li>
+      <li><b>Z lotniska Bolt.</b> Odbiór jest na parkingu: z hali przylotów zjeżdżamy na poziom -1 i przechodzimy tunelem. Kurs kosztuje ok. 12–20 € za auto.</li>
+      <li>Konkatedra jest otwarta 9:00–16:45 (ostatnie wejście 16:00), a nie 9:00–16:00. Bilet seniora kosztuje 12 €. Muzeum jest zamknięte z powodu remontu.</li>
+      <li>Hotel: według listingu u pośrednika dostawki nie są możliwe. W listopadzie 2025 śniadania były podawane, wynika to z opinii gości. Klimatyzacja może nie grzać.</li>
+      <li>Strona nie miała deklaracji kodowania UTF-8, więc polskie litery mogły się źle wyświetlać. Jest poprawione.</li>
+    </ul>
+  </section>
+
+  <section id="podroz">
+    <h2>Lot i hotel</h2>
+    <div class="flights">
+      <div class="flight">
+        <div class="code">RYANAIR FR5226 · PON 2.11</div>
+        <div class="route">Poznań → Malta</div>
+        <div class="times"><div><span>wylot</span><b>12:45</b></div><div><span>przylot</span><b>15:45</b></div></div>
+      </div>
+      <div class="flight">
+        <div class="code">RYANAIR FR5227 · PT 6.11</div>
+        <div class="route">Malta → Poznań</div>
+        <div class="times"><div><span>wylot</span><b>9:25</b></div><div><span>przylot</span><b>12:15</b></div></div>
+      </div>
+    </div>
+
+    <div class="hotel">
+      <h3>The Howard Hotel ★★★</h3>
+      <div class="addr" id="addr">Triq Guże' Howard, SLM 1414 Sliema, Malta</div>
+      <button class="copy" type="button" data-copy="The Howard Hotel, Triq Guze' Howard, SLM 1414 Sliema, Malta">Kopiuj adres</button>
+      <a class="gm" style="margin-left:10px" href="https://www.google.com/maps/search/?api=1&query=35.915217,14.499725" target="_blank" rel="noopener">Otwórz w Mapach Google</a>
+      <dl class="kv">
+        <dt>Telefon</dt><dd>+356 7999 9717</dd>
+        <dt>Rezerwacja</dt><dd>Booking (numer i PIN w mailu z potwierdzeniem)</dd>
+        <dt>Zameldowanie</dt><dd>pon 2.11, 15:00–00:00 · dowód osobisty i karta kredytowa</dd>
+        <dt>Wymeldowanie</dt><dd>pt 6.11, do 11:00</dd>
+        <dt>Pokój</dt><dd>Superior, 3 osoby, śniadanie w cenie (zwykle 7:30–10:30)</dd>
+        <dt>Łóżka</dt><dd>1 podwójne (131–150 cm) + rozkładana sofa</dd>
+        <dt>W pokoju</dt><dd>klimatyzacja, minibar, czajnik, kawa i herbata, suszarka</dd>
+        <dt>Winda</dt><dd>jest, na wyższe piętra</dd>
+        <dt>Cena</dt><dd>448 € łącznie z opłatą środowiskową, karta Visa/Mastercard</dd>
+        <dt>Płatność</dt><dd>całość pobrana w ciągu 5 dni przed przyjazdem</dd>
+        <dt>Odwołanie</dt><dd>bezpłatnie do 27.10, 23:59; potem 430 €</dd>
+        <dt>Do morza</dt><dd>ok. 100–200 m do promenady przy Exiles</dd>
+        <dt>GPS</dt><dd>N 35°54.917′, E 14°29.984′</dd>
+      </dl>
+      <div class="tip"><strong>Śpimy we trzy</strong>Pokój ma jedno łóżko podwójne i rozkładaną sofę. Według listingu u pośrednika (tropki.com) hotel nie wstawia dostawek, ale warto o to zapytać.</div>
+      <div class="tip"><strong>Z opinii gości (XI 2025 – V 2026)</strong>Śniadania w listopadzie były podawane i chwalone. Niektóre pokoje mają okno na szyb wentylacyjny, ściany są cienkie, a klimatyzacja w listopadzie czasem nie grzała. Poprosimy o pokój z oknem na zewnątrz i działającym grzaniem. Weźmiemy cieplejsze piżamy i zatyczki do uszu.</div>
+    </div>
+  </section>
+
+  <!-- DAY 2.11 -->
+  <section class="day" id="d2">
+    <div class="dayhead"><span class="date">2.11</span><h2>Przylot i pierwszy wieczór</h2><span class="wd">Poniedziałek</span></div>
+    <span class="badge b-taxi">Bolt z lotniska</span>
+    <ol class="tl">
+      <li><span class="t">15:45</span><div class="what"><b>Lądowanie na Malcie</b><p>Asysta na lotnisku czeka przy samolocie, jeśli ją zamówimy.</p></div></li>
+      <li><span class="t">ok. 16:20</span><div class="what"><b>Bolt z lotniska pod hotel</b><p>Kierowcy Bolta odbierają z parkingu: z hali przylotów (Welcomers' Hall) schodzimy na poziom -1 i idziemy tunelem na parking. Dokładny punkt pokaże aplikacja. Cel: „The Howard Hotel Sliema”. Ok. 12–20 € za auto, jazda ok. 20–25 min. Z większymi walizkami wybieramy w aplikacji większe auto (XL).</p></div></li>
+      <li><span class="t">ok. 17:00</span><div class="what"><b>Zameldowanie, rozpakowanie</b><p>Od razu sprawdzamy, czy klimatyzacja grzeje. Jeśli nie, prosimy o inny pokój albo grzejnik.</p></div></li>
+      <li><span class="t">18:30</span><div class="what"><b>Krótki spacer i kolacja: Fresco's</b><p>Tower Road, ok. 250 m od hotelu. W karcie m.in. grillowane kalmary i ośmiornica oraz ryba dnia. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.914802,14.496807" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+    </ol>
+    <div class="tip"><strong>Bez autobusów</strong>Na miejscu jeździmy wyłącznie Boltem, eCabs albo taksówką. Za auto dla trzech osób wychodzi to niewiele drożej niż trzy bilety autobusowe.</div>
+  </section>
+
+  <!-- DAY 3.11 -->
+  <section class="day" id="d3">
+    <div class="dayhead"><span class="date">3.11</span><h2>Valletta na spokojnie</h2><span class="wd">Wtorek</span></div>
+    <span class="badge b-taxi">Bolt tam i z powrotem · ok. 1,5 km pieszo w kilku odcinkach</span>
+    <ol class="tl">
+      <li><span class="t">9:00</span><div class="what"><b>Śniadanie</b></div></li>
+      <li><span class="t">9:30</span><div class="what"><b>Bolt pod City Gate</b><p>Ok. 15–20 min. Za auto ok. 8–12 € według porównań cen, bez gwarancji. Od bramy płasko Republic Street, ok. 350 m do katedry.</p></div></li>
+      <li><span class="t">10:00</span><div class="what"><b>Konkatedra św. Jana</b><p>Złote wnętrze i Caravaggio. Otwarta pon–sob 9:00–16:45, ostatnie wejście 16:00. Bilety: senior 12 €, dorosły 15 €. Polski audioprzewodnik jest w cenie. Obowiązuje skromny strój, przyda się chusta na ramiona. Obcasy-szpilki są zabronione. Muzeum jest teraz zamknięte z powodu remontu. Wejście dla osób z ograniczoną mobilnością jest, choć nie do wszystkich części.</p></div></li>
+      <li><span class="t">11:30</span><div class="what"><b>Ogrody Górnej Barrakki</b><p>Ok. 300 m. Ławki, toalety i widok na Wielki Port. O 12:00 strzał z armaty salutowej (pon–sob, drugi o 16:00). Z tarasu oglądamy za darmo. Warto być 15 min wcześniej.</p></div></li>
+      <li><span class="t">12:30</span><div class="what"><b>Obiad: Palazzo Preca</b><p>Strait Street 54, ok. 400 m. We wtorek otwarte 12:00–15:45, warto zarezerwować (+356 2122 6777). Świeże ryby i kuchnia maltańska. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.898778,14.512277" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+      <li><span class="t">14:15</span><div class="what"><b>Bolt do hotelu, odpoczynek</b><p>Punkt odbioru wskaże aplikacja; ruch aut w centrum Valletty jest ograniczony.</p></div></li>
+      <li><span class="t">16:30</span><div class="what"><b>Kawa przy Exiles i zachód słońca ok. 17:05</b></div></li>
+      <li><span class="t">19:00</span><div class="what"><b>Kolacja blisko hotelu</b><p>Fresco's albo Forty Fishes (Gżira, krótki kurs Boltem).</p></div></li>
+    </ol>
+    <div class="tip"><strong>Wersja dłuższa</strong>Można zostać w Valletcie dłużej i obejrzeć drugi strzał o 16:00. Wtedy obiad jest późniejszy, a Barrakkę zostawiamy na koniec.</div>
+  </section>
+
+  <!-- DAY 4.11 -->
+  <section class="day" id="d4">
+    <div class="dayhead"><span class="date">4.11</span><h2>Północ Malty autem z przewodnikiem</h2><span class="wd">Środa</span></div>
+    <span class="badge b-taxi">wycieczka „Malta North” · 65 € · podjazd autem pod punkty widokowe</span>
+    <ol class="tl">
+      <li><span class="t">rano</span><div class="what"><b>Bolt na miejsce zbiórki</b><p>Ok. 14 €. Godzinę i miejsce zbiórki bierzemy z potwierdzenia rezerwacji; tu ich jeszcze nie mamy.</p></div></li>
+      <li><span class="t">1</span><div class="what"><b>Golden Bay i Għajn Tuffieħa z góry</b><p>Punkt widokowy przy wieży Għajn Tuffieħa, widać obie zatoki. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.930865,14.343339" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+      <li><span class="t">2</span><div class="what"><b>Mġarr (kościół) i wioska Manikata</b><p><a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.919513,14.366118" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+      <li><span class="t">3</span><div class="what"><b>Zatoka Ġnejna</b><p><a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.922134,14.341877" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+      <li><span class="t">4</span><div class="what"><b>Anchor Bay z góry i Popeye Village</b><p>Punkt widokowy nad dawnym planem filmowym. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.959903,14.341065" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+      <li><span class="t">5</span><div class="what"><b>Półwysep Aħrax: Czerwona Wieża (St Agatha's Tower) i Biała Wieża</b><p><a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.974675,14.342853" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+      <li><span class="t">6</span><div class="what"><b>Madonna na klifach Aħrax, widok na Gozo, Comino i Blue Lagoon</b><p><a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.988374,14.375494" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+      <li><span class="t">po</span><div class="what"><b>Powrót, odpoczynek w hotelu, zachód słońca ok. 17:05 przy Exiles</b></div></li>
+      <li><span class="t">19:00</span><div class="what"><b>Kolacja: Fresco's</b><p>Ok. 250 m od hotelu.</p></div></li>
+    </ol>
+    <div class="tip"><strong>Dopytać organizatora przy rezerwacji</strong>Godzina i miejsce zbiórki, czas trwania, czy auto podjeżdża pod punkty widokowe, gdzie są przerwy na toaletę i czy jest przerwa na posiłek. Zapytać też, czy na Aħrax prowadzą nieutwardzone drogi (tego nie sprawdzałam). Przyda się woda i coś do przegryzienia.</div>
+  </section>
+
+  <!-- DAY 5.11 -->
+  <section class="day" id="d5">
+    <div class="dayhead"><span class="date">5.11</span><h2>Dzień na plaży</h2><span class="wd">Czwartek</span></div>
+    <span class="badge b-taxi">Bolt · wariant A albo B · kostiumy i ręczniki</span>
+    <div class="decide"><strong>Do wspólnego ustalenia: Mama, Agnieszka i Marzena</strong>Dwie plaże do wyboru. A to dłuższa wyprawa na największą piaszczystą plażę Malty, B to plaża blisko hotelu. Można zdecydować dzień wcześniej, po sprawdzeniu pogody.</div>
+    <div class="tip"><strong>Na obie plaże</strong>Po 31.10 nie ma już ratowników ani leżaków, więc bierzemy ręczniki i koc. Woda ma ok. 21–23°C. Rano sprawdzamy stan morza na <a href="https://www.beaches.mt" target="_blank" rel="noopener">beaches.mt</a>. Pływamy przy brzegu i tylko przy spokojnym morzu.</div>
+
+    <div class="variant">
+      <h3>Wariant A: Mellieħa Bay (Għadira)</h3>
+      <div class="pc">
+        <div><b>Za</b><ul><li>Naturalny piasek, bardzo płytko i łagodnie (15–60 cm na długim odcinku)</li><li>Duża plaża (ok. 800 m), osłonięta zatoka</li><li>Restauracje z widokiem na morze czynne też jesienią</li></ul></div>
+        <div><b>Przeciw</b><ul><li>Dalej: Bolt ok. 30–40 min, ok. 22–28 € w jedną stronę</li><li>Słońce zachodzi za wzgórzem, nie nad morzem</li><li>Między restauracjami a plażą biegnie ruchliwa droga</li></ul></div>
+      </div>
+      <ol class="tl">
+        <li><span class="t">do 9:30</span><div class="what"><b>Spokojne śniadanie w hotelu</b></div></li>
+        <li><span class="t">ok. 10:00</span><div class="what"><b>Bolt Sliema → Mellieħa Bay</b><p>Cel: „Blu Beach Club, Marfa Road” albo „Munchies Mellieha Bay”, wysiadka przy samej plaży. Ok. 30–40 min, ok. 22–28 € za auto (szacunek). <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.970960,14.349790" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+        <li><span class="t">10:45</span><div class="what"><b>Plaża i kąpiel</b><p>Płytka woda przy brzegu, jeśli morze jest spokojne.</p></div></li>
+        <li><span class="t">12:30</span><div class="what"><b>Obiad z widokiem na morze</b><p><b>Blu Beach Club</b>: przy samej wodzie, czynny cały rok. Tel. +356 7938 7538, <a href="https://www.blubeach.com.mt/reservations" target="_blank" rel="noopener">rezerwacje online</a>. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.966076,14.355930" target="_blank" rel="noopener">Otwórz w Mapach Google</a><br><b>Munchies Mellieħa Bay</b>: nad plażą, duże okna na morze. Tel. +356 2157 6416, res@munchiesmalta.com. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.972246,14.349796" target="_blank" rel="noopener">Otwórz w Mapach Google</a><br>Stolik warto zarezerwować dzień wcześniej.</p></div></li>
+        <li><span class="t">14:00</span><div class="what"><b>Jeszcze plaża</b><p>Kawa, spacer brzegiem po piasku.</p></div></li>
+        <li><span class="t">ok. 16:15</span><div class="what"><b>Bolt z powrotem do hotelu</b><p>Zamawiamy ok. 16:00, zanim zrobi się ciemno, bo potem aut jest mniej. 30–40 min.</p></div></li>
+        <li><span class="t">17:05</span><div class="what"><b>Zachód słońca z promenady w Sliemie</b><p>Przy Exiles albo nad Balluta Bay, kilka minut od hotelu. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.918430,14.498724" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+      </ol>
+    </div>
+
+    <div class="variant">
+      <h3>Wariant B: St George's Bay (St Julian's)</h3>
+      <div class="pc">
+        <div><b>Za</b><ul><li>Blisko: Bolt ok. 10 min, ok. 6–9 €</li><li>Piasek, płytko i spokojnie</li><li>Publiczne toalety i prysznice, wokół dużo kawiarni</li><li>W ciągu dnia łatwo wrócić do hotelu</li></ul></div>
+        <div><b>Przeciw</b><ul><li>Mała plaża, piasek nawieziony i dość gruby</li><li>Miejskie otoczenie: hotele, a obok trwa budowa</li><li>W opiniach zdarzają się uwagi o porządku na plaży</li></ul></div>
+      </div>
+      <ol class="tl">
+        <li><span class="t">ok. 10:00</span><div class="what"><b>Bolt do St George's Bay</b><p>Ok. 10 min. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=St%20George%27s%20Bay%20Beach%20St%20Julian%27s" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+        <li><span class="t">10:15–13:00</span><div class="what"><b>Plaża i kąpiel, potem lunch w jednej z kawiarni przy zatoce</b></div></li>
+        <li><span class="t">popołudnie</span><div class="what"><b>Powrót do hotelu, odpoczynek, zachód słońca ok. 17:05 przy Exiles</b></div></li>
+      </ol>
+    </div>
+
+    <ol class="tl" style="margin-top:18px">
+      <li><span class="t">19:00</span><div class="what"><b>Ostatnia kolacja: Barracuda nad Balluta Bay</b><p>Ok. 450 m od hotelu, warto zarezerwować. Wieczorem pakowanie i odbiór breakfast boxa. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.915331,14.495074" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+    </ol>
+
+    <div class="tip"><strong>Warianty zapasowe i na deszcz</strong><b>Mdina z Fontanellą</b>: rano Boltem (ok. 25–30 min), taras na murach z widokiem, czynny codziennie 10:00–23:30. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.884811,14.403517" target="_blank" rel="noopener">Otwórz w Mapach Google</a><br><b>Harbour Cruise z Sliema Ferries</b>: 90 min, zimą ok. 10:30, 12:30 i 14:45, ok. 16–20 €, bez rezerwacji. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.908833,14.504283" target="_blank" rel="noopener">Otwórz w Mapach Google</a><br><b>Malta Experience</b> w Valletcie: 45-minutowy pokaz o historii Malty (20 €; godziny do potwierdzenia).</div>
+    <div class="warn"><strong>Pomijamy</strong>Błękitną Grotę: do łódek schodzi się stromo i trzeba wsiadać do kołyszącej się łodzi, a rejsy zależą od pogody.</div>
+  </section>
+
+  <!-- DAY 6.11 -->
+  <section class="day" id="d6">
+    <div class="dayhead"><span class="date">6.11</span><h2>Powrót</h2><span class="wd">Piątek</span></div>
+    <span class="badge b-taxi">taksówka zamówiona wcześniej</span>
+    <ol class="tl">
+      <li><span class="t">6:45</span><div class="what"><b>Wymeldowanie, breakfast box</b><p>Hotelowe śniadanie zaczyna się o 7:30, więc nie zdążymy.</p></div></li>
+      <li><span class="t">7:00</span><div class="what"><b>Taksówka na lotnisko</b><p>Ok. 20–25 min. Zamówiona dzień wcześniej przez recepcję albo w eCabs (stała cena przy rezerwacji).</p></div></li>
+      <li><span class="t">7:30</span><div class="what"><b>Lotnisko, asysta, kontrola</b></div></li>
+      <li><span class="t">9:25</span><div class="what"><b>Wylot FR5227</b></div></li>
+      <li><span class="t">12:15</span><div class="what"><b>Lądowanie w Poznaniu</b></div></li>
+    </ol>
+  </section>
+
+  <section id="jedzenie" class="rest">
+    <h2>Restauracje</h2>
+    <p class="sub">Sprawdzone propozycje blisko planu dnia. Na kolacje warto rezerwować.</p>
+    <div class="cards">
+      <div class="card"><h3>Fresco's · Sliema</h3><p>Tower Road, ok. 250 m od hotelu. Ryby i owoce morza (grillowane kalmary, ośmiornica, ryba dnia), makarony, pizza.</p><a class="gm" href="https://www.frescosmalta.com/menu" target="_blank" rel="noopener">Menu</a> · <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.914802,14.496807" target="_blank" rel="noopener">Otwórz w Mapach Google</a></div>
+      <div class="card"><h3>Barracuda · Balluta Bay</h3><p>Ryby i owoce morza z widokiem na zatokę, ok. 450 m od hotelu. Świeże ryby wybiera się z ekspozycji.</p><a class="gm" href="https://www.malta.com/en/dining/restaurant/st-julian-s/barracuda" target="_blank" rel="noopener">Opis</a> · <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.915331,14.495074" target="_blank" rel="noopener">Otwórz w Mapach Google</a></div>
+      <div class="card"><h3>Forty Fishes · Gżira / St Julian's</h3><p>Rodzinna restauracja rybna: dorada, labraks, tuńczyk i ośmiornica z grilla. Otwarte codziennie na lunch i kolację.</p><a class="gm" href="https://fortyfishes.mt/st-julians" target="_blank" rel="noopener">Strona i menu</a> · <a class="gm" href="https://www.google.com/maps/search/?api=1&query=Forty%20Fishes%20Gzira%20225%20Triq%20ix-Xatt" target="_blank" rel="noopener">Otwórz w Mapach Google</a></div>
+      <div class="card"><h3>Palazzo Preca · Valletta</h3><p>Strait Street 54. Nagradzana restauracja z rybami i kuchnią maltańską, w XVI-wiecznym pałacu. Wt–czw tylko 12:00–15:45.</p><a class="gm" href="https://palazzoprecavalletta.com/" target="_blank" rel="noopener">Strona</a> · <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.898778,14.512277" target="_blank" rel="noopener">Otwórz w Mapach Google</a></div>
+      <div class="card"><h3>Coogi's Restaurant & Tea Garden · Mdina</h3><p>Przy murach Mdiny. Lunch: ostatnie zamówienia ok. 14:50.</p><a class="gm" href="http://www.coogis.co/" target="_blank" rel="noopener">Strona</a> · <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.887424,14.402562" target="_blank" rel="noopener">Otwórz w Mapach Google</a></div>
+      <div class="card"><h3>Tartarun · Marsaxlokk</h3><p>Ryba dnia nad samym nabrzeżem wioski rybackiej. Zamknięte w poniedziałki i czwartki, w niedziele tylko lunch.</p><a class="gm" href="https://www.tartarun.com/" target="_blank" rel="noopener">Strona</a> · <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.841489,14.545344" target="_blank" rel="noopener">Otwórz w Mapach Google</a></div>
+    </div>
+  </section>
+
+  <section id="mapa">
+    <h2>Mapa wszystkich miejsc</h2>
+    <p class="sub">Kolory według dni. Kliknij przycisk dnia, żeby go ukryć albo pokazać. Mapa wymaga internetu; lista pod mapą działa bez niego.</p>
+    <div class="legend" id="legend"></div>
+    <div id="map" role="region" aria-label="Mapa miejsc"></div>
+    <p class="mapnote" id="mapnote">Kółko z białym środkiem to restauracja. Współrzędne pochodzą z OpenStreetMap; Forty Fishes jest zaznaczone w przybliżeniu. Mapy do wydruku (pliki obok strony): <a href="mapa-malta.png" target="_blank">cała Malta</a> · <a href="mapa-sliema-valletta.png" target="_blank">Sliema i Valletta</a>.</p>
+    <div class="plist" id="plist"></div>
+  </section>
+
+  <section id="transport">
+    <h2>Transport</h2>
+    <p class="sub">Ceny za cały samochód, nie za osobę. Taksówki to orientacyjne widełki z porównań cen, nie z oficjalnych cenników.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Trasa</th><th>Bolt / eCabs</th><th>Biała taksówka</th></tr></thead>
+        <tbody>
+          <tr><td>Lotnisko → Sliema</td><td>12–20 € (odbiór z parkingu, poziom -1)</td><td>ok. 20 € stała (budka w hali przylotów)</td></tr>
+          <tr><td>Sliema → Valletta</td><td>8–12 €</td><td>więcej</td></tr>
+          <tr><td>Sliema → Mdina</td><td>12–22 €</td><td>25–38 €</td></tr>
+          <tr><td>Sliema → Mellieħa Bay</td><td>ok. 22–28 € (szacunek)</td><td>więcej</td></tr>
+          <tr><td>Sliema → St George's Bay</td><td>ok. 6–9 € (szacunek)</td><td>więcej</td></tr>
+          <tr><td>Sliema → zbiórka wycieczki (śr)</td><td>ok. 14 €</td><td>więcej</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cards">
+      <div class="card" style="grid-column:1/-1;background:var(--harbor-soft);border-color:transparent">
+        <h3>Jak się poruszamy</h3>
+        <ul>
+          <li>tylko Bolt, eCabs i białe taksówki; autobusów, hop-on i karty Explore Flex nie bierzemy</li>
+          <li>środa: wycieczka z przewodnikiem autem, na zbiórkę Boltem (ok. 14 €)</li>
+          <li>prom Sliema ↔ Valletta (zimą co 30 min, 3 € w jedną stronę) przybija pod murami Valletty, do centrum stromo pod górę, więc do Valletty jedziemy Boltem</li>
+        </ul>
+        <h3 style="margin-top:16px">Rejs po porcie (wariant zapasowy)</h3>
+        <ul>
+          <li>Captain Morgan / iSeeMalta „Harbour Cruise”: start z Sliema Ferries, zimą 10:30, 12:30, 14:45, 90 min</li>
+          <li>bez rezerwacji, ok. 16–20 €, komentarz po angielsku i niemiecku, przy złej pogodzie odwoływany</li>
+        </ul>
+        <h3 style="margin-top:16px">Źródła</h3>
+        <ul>
+          <li><a href="https://www.stjohnscocathedral.com/visit/" target="_blank" rel="noopener">Konkatedra św. Jana: godziny i bilety</a></li>
+          <li><a href="https://www.wirtartna.org/salutingbattery" target="_blank" rel="noopener">Saluting Battery: strzały 12:00 i 16:00</a></li>
+          <li><a href="https://www.transport.gov.mt/land/public-transport/other-public-transport/barrakka-lift-826" target="_blank" rel="noopener">Winda Barrakka (Transport Malta)</a></li>
+          <li><a href="https://www.vallettaferryservices.com/schedule/" target="_blank" rel="noopener">Prom Sliema–Valletta: rozkład zimowy</a></li>
+          <li><a href="https://iseemalta.com/wp-content/uploads/2024/07/3010-ISM-Harbour-schedule-V3.pdf" target="_blank" rel="noopener">Harbour Cruise: rozkład</a></li>
+          <li><a href="https://timesofmalta.com/article/airport-ride-hailing-cab-pick-up-point-car-park.1112975" target="_blank" rel="noopener">Bolt/eCabs: odbiór z parkingu na lotnisku</a></li>
+          <li><a href="https://www.hemenhesap.com/en/malta-airport-taxi-fare" target="_blank" rel="noopener">Stałe ceny białych taksówek (serwis nieoficjalny)</a></li>
+          <li><a href="https://www.fontanellateagarden.com.mt/contact-us" target="_blank" rel="noopener">Fontanella: godziny</a></li>
+          <li><a href="https://maltaaudioguide.com/mdina" target="_blank" rel="noopener">Mdina: nawierzchnia i dostępność</a></li>
+          <li><a href="https://www.maltainfoguide.com/mellieha-bay.html" target="_blank" rel="noopener">Mellieħa Bay: przewodnik</a></li>
+          <li><a href="https://www.beaches.mt/beaches/st-georges-bay-st-julians" target="_blank" rel="noopener">St George's Bay: warunki i udogodnienia</a></li>
+          <li><a href="https://www.blubeach.com.mt/" target="_blank" rel="noopener">Blu Beach Club</a> · <a href="https://www.munchies.mt/munchies-bistro" target="_blank" rel="noopener">Munchies Mellieħa Bay</a></li>
+          <li><a href="https://www.themaltaexperience.com/" target="_blank" rel="noopener">Malta Experience</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Aplikacje do pobrania</h3>
+        <ul>
+          <li><b>Ryanair</b>: karty pokładowe, odprawa online, asysta na lotnisku</li>
+                    <li><b>Revolut</b>: płatności w euro</li>
+          <li><b>Bolt</b>: taksówki, zwykle najtańszy</li>
+          <li><b>eCabs</b>: taksówki z rezerwacją i stałą ceną, dobre na 6.11 rano i powrót z Golden Bay</li>
+          <li><b>Booking</b>: rezerwacja hotelu i kontakt z hotelem</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Przydatne</h3>
+        <ul>
+          <li>gniazdka brytyjskie (typ G), potrzebna przejściówka</li>
+          <li>ruch lewostronny: patrzymy w prawo przy przejściu</li>
+          <li>numer alarmowy: 112</li>
+          <li>waluta: euro; na łódkę dgħajsa potrzebna gotówka</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="lista">
+    <h2>Do zrobienia przed wyjazdem</h2>
+    <p class="sub">Zaznaczenia zapamiętują się w tej przeglądarce.</p>
+    <ul class="check" id="checklist">
+      <li><label><input type="checkbox" id="c1"><span>Wiadomość do hotelu przez Booking<small>schodki, niskie piętro, pokój z oknem, grzanie, dostawka, śniadania, breakfast box</small></span></label></li>
+      <li><label><input type="checkbox" id="c0"><span>Decyzja o rezerwacji do 27.10<small>do tego dnia odwołanie bezpłatne, potem hotel pobiera 430 €</small></span></label></li>
+      <li><label><input type="checkbox" id="c10"><span>Dowód osobisty i karta kredytowa do zameldowania</span></label></li>
+      <li><label><input type="checkbox" id="c2"><span>Asysta na lotnisku (Ryanair)<small>zamówić min. 48 h przed lotem, osobno tam i z powrotem</small></span></label></li>
+      <li><label><input type="checkbox" id="c18"><span>Rezerwacja wycieczki z przewodnikiem „Malta North” na śr 4.11<small>65 €; potwierdzić godzinę i miejsce zbiórki, czas trwania, przerwy na toaletę i posiłek, podjazd pod punkty widokowe</small></span></label></li>
+      <li><label><input type="checkbox" id="c14"><span>Bilety do Konkatedry online na wt 3.11<small>senior 12 €, dorośli 15 €, bilet ważny 7 dni od wybranej daty</small></span></label></li>
+      <li><label><input type="checkbox" id="c15"><span>Rezerwacje: Palazzo Preca (wt, obiad) i Barracuda (czw, kolacja)<small>w czwartek także stolik na obiad w Blu Beach Club albo Munchies, jeśli wybieramy wariant A</small></span></label></li>
+      <li><label><input type="checkbox" id="c16"><span>Gotówka w euro w drobnych<small>dgħajsa, napiwki, drobne zakupy</small></span></label></li>
+      <li><label><input type="checkbox" id="c13"><span>Woda i przekąski na środową wycieczkę</span></label></li>
+      <li><label><input type="checkbox" id="c19"><span>Na czwartkową plażę: kostiumy, ręczniki, buty do wody, krem z filtrem<small>do tego koc lub mata (leżaków nie będzie), okulary, czapka</small></span></label></li>
+      <li><label><input type="checkbox" id="c4"><span>Pobrać aplikacje i założyć konta w Polsce<small>Ryanair, Revolut, Bolt, eCabs, Booking</small></span></label></li>
+      <li><label><input type="checkbox" id="c11"><span>Doładować Revolut w euro</span></label></li>
+      <li><label><input type="checkbox" id="c5"><span>Odprawa online dla wszystkich trzech osób</span></label></li>
+      <li><label><input type="checkbox" id="c6"><span>Przejściówki do gniazdek typu G</span></label></li>
+      <li><label><input type="checkbox" id="c7"><span>Lekka kurtka, ciepły sweter, buty z dobrą podeszwą (śliska Mdina), chusta do katedry</span></label></li>
+      <li><label><input type="checkbox" id="c8"><span>Leki w bagażu podręcznym</span></label></li>
+      <li><label><input type="checkbox" id="c9"><span>Taksówka na lotnisko na 6.11, godz. 7:00<small>zamówić 5.11 przez recepcję albo eCabs</small></span></label></li>
+    </ul>
+
+    <h3 style="margin-top:28px;font-size:1.2rem">Wiadomość do hotelu</h3>
+    <blockquote id="msg">Hello, we have booked a Superior Double Room for 3 adults from 2 to 6 November (booking no. [numer z maila Booking]). We expect to arrive at around 17:00. I'd like to ask: are there any steps at the hotel entrance? If possible, could we have a quiet room on a lower floor, close to the lift, with a window to the outside, and with air conditioning that can heat? As the room has one double bed and a sofa bed, would it be possible to add an extra single bed, and what would it cost? Could you also confirm that breakfast is served in November? We have an early flight on 6 November at 9:25, so we would be grateful for a breakfast box that morning and help booking a taxi for 7:00. Thank you very much! Kind regards, Marzena</blockquote>
+    <p style="margin:10px 0 0"><button class="copy" type="button" data-copy-from="msg">Kopiuj wiadomość</button></p>
+  </section>
+
+  <footer>Sprawdzone 19.10.2026. Ceny taksówek są orientacyjne. Godziny restauracji przy plaży, Malta Experience i rejsu potwierdźcie na miejscu, bo poza sezonem mogą się zmienić.</footer>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script>
+
+var PLACES = {
+ "groups": [
+  {
+   "id": "baza",
+   "label": "Baza: hotel",
+   "color": "#0f4c75"
+  },
+  {
+   "id": "pon",
+   "label": "Pon 2.11: przylot",
+   "color": "#6b4fa0"
+  },
+  {
+   "id": "wt",
+   "label": "Wt 3.11: Valletta",
+   "color": "#c8372d"
+  },
+  {
+   "id": "sr",
+   "label": "Śr 4.11: wycieczka z przewodnikiem „Malta North”",
+   "color": "#2f7d4e"
+  },
+  {
+   "id": "czw",
+   "label": "Czw 5.11: dzień na plaży (wariant A lub B)",
+   "color": "#d97a00"
+  },
+  {
+   "id": "pt",
+   "label": "Pt 6.11: powrót",
+   "color": "#555f66"
+  },
+  {
+   "id": "alt",
+   "label": "Warianty zapasowe i inne restauracje",
+   "color": "#8a6d3b"
+  }
+ ],
+ "places": [
+  {
+   "group": "baza",
+   "name": "The Howard Hotel",
+   "label": "Hotel",
+   "desc": "Nasz hotel. Triq Ġużè Howard, Sliema. Śniadanie zwykle 7:30–10:30.",
+   "lat": 35.915217,
+   "lng": 14.499725,
+   "rest": false,
+   "acc": "OSM + GPS z rezerwacji",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.915217,14.499725"
+  },
+  {
+   "group": "pon",
+   "name": "Lotnisko Malta (MLA)",
+   "label": "Lotnisko (przylot pon, wylot pt)",
+   "desc": "Przylot 15:45. Bolt odbiera z parkingu: z hali przylotów poziom -1 i tunel. Ok. 12–20 € do Sliemy.",
+   "lat": 35.84741,
+   "lng": 14.492287,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.84741,14.492287"
+  },
+  {
+   "group": "pon",
+   "name": "Promenada przy Exiles",
+   "label": "Promenada Exiles",
+   "desc": "Ławki i widok na morze, 2–3 min od hotelu. Kawa w Exiles Beach Club. Zachód słońca ok. 17:05.",
+   "lat": 35.91843,
+   "lng": 14.498724,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.91843,14.498724"
+  },
+  {
+   "group": "pon",
+   "name": "Fresco's (kolacja)",
+   "label": "Fresco's",
+   "desc": "Tower Road, ok. 250 m od hotelu. Ryby i owoce morza, ryba dnia.",
+   "lat": 35.914802,
+   "lng": 14.496807,
+   "rest": true,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.914802,14.496807"
+  },
+  {
+   "group": "wt",
+   "name": "City Gate",
+   "label": "City Gate",
+   "desc": "Wejście do Valletty; tu wysiadamy z Bolta. Dalej płasko Republic Street.",
+   "lat": 35.895914,
+   "lng": 14.509422,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.895914,14.509422"
+  },
+  {
+   "group": "wt",
+   "name": "Konkatedra św. Jana",
+   "label": "Konkatedra",
+   "desc": "Pon–sob 9:00–16:45, ostatnie wejście 16:00. Senior 12 €, dorosły 15 €. Audioprzewodnik po polsku.",
+   "lat": 35.897696,
+   "lng": 14.512629,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.897696,14.512629"
+  },
+  {
+   "group": "wt",
+   "name": "Ogrody Górnej Barrakki",
+   "label": "Górna Barrakka",
+   "desc": "Ławki i widok na Wielki Port. Strzał z armaty o 12:00 i 16:00 (pon–sob), z tarasu za darmo.",
+   "lat": 35.894955,
+   "lng": 14.512009,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.894955,14.512009"
+  },
+  {
+   "group": "wt",
+   "name": "Palazzo Preca (obiad)",
+   "label": "Palazzo Preca",
+   "desc": "Strait Street 54. Wt 12:00–15:45. Ryby i kuchnia maltańska. Rezerwacja +356 2122 6777.",
+   "lat": 35.898778,
+   "lng": 14.512277,
+   "rest": true,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.898778,14.512277"
+  },
+  {
+   "group": "sr",
+   "name": "Golden Bay i Għajn Tuffieħa z góry",
+   "label": "Golden Bay / Għajn Tuffieħa",
+   "desc": "Punkt widokowy przy wieży Għajn Tuffieħa, widać obie zatoki.",
+   "lat": 35.930865,
+   "lng": 14.343339,
+   "rest": false,
+   "acc": "OSM (wieża)",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.930865,14.343339"
+  },
+  {
+   "group": "sr",
+   "name": "Mġarr: kościół",
+   "label": "Mġarr",
+   "desc": "Kościół parafialny w Mġarrze.",
+   "lat": 35.919513,
+   "lng": 14.366118,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.919513,14.366118"
+  },
+  {
+   "group": "sr",
+   "name": "Manikata",
+   "label": "Manikata",
+   "desc": "Mała wioska po drodze.",
+   "lat": 35.940721,
+   "lng": 14.353765,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.940721,14.353765"
+  },
+  {
+   "group": "sr",
+   "name": "Zatoka Ġnejna",
+   "label": "Ġnejna",
+   "desc": "Zatoka z czerwonawym piaskiem, otoczona klifami.",
+   "lat": 35.922134,
+   "lng": 14.341877,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.922134,14.341877"
+  },
+  {
+   "group": "sr",
+   "name": "Anchor Bay i Popeye Village (punkt widokowy)",
+   "label": "Popeye Village",
+   "desc": "Widok z góry na dawny plan filmowy w zatoce Anchor Bay.",
+   "lat": 35.959903,
+   "lng": 14.341065,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.959903,14.341065"
+  },
+  {
+   "group": "sr",
+   "name": "Czerwona Wieża (St Agatha's Tower)",
+   "label": "Czerwona Wieża",
+   "desc": "Wieża z XVII w. na grzbiecie Marfa, widok na Gozo i Comino.",
+   "lat": 35.974675,
+   "lng": 14.342853,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.974675,14.342853"
+  },
+  {
+   "group": "sr",
+   "name": "Biała Wieża (Torri l-Abjad)",
+   "label": "Biała Wieża, widok na Gozo i Comino",
+   "desc": "Wieża na półwyspie Aħrax.",
+   "lat": 35.995485,
+   "lng": 14.364495,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.995485,14.364495"
+  },
+  {
+   "group": "sr",
+   "name": "Figura Madonny na klifach Aħrax",
+   "label": "Madonna Aħrax",
+   "desc": "Figura Madonny i kaplica nad klifami.",
+   "lat": 35.988374,
+   "lng": 14.375494,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.988374,14.375494"
+  },
+  {
+   "group": "sr",
+   "name": "Cypel Aħrax: widok na Gozo, Comino i Blue Lagoon",
+   "label": "Widok na Gozo i Comino",
+   "desc": "Północny cypel Malty.",
+   "lat": 35.99838,
+   "lng": 14.367515,
+   "rest": false,
+   "acc": "OSM",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.99838,14.367515"
+  },
+  {
+   "group": "czw",
+   "name": "Wariant A: Mellieħa Bay (Għadira)",
+   "label": "A: Mellieħa Bay",
+   "desc": "Największa piaszczysta plaża Malty, bardzo płytko i łagodnie. Bolt ok. 30–40 min, ok. 22–28 €. Po 31.10 bez ratowników i leżaków.",
+   "lat": 35.97096,
+   "lng": 14.34979,
+   "rest": false,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.97096,14.34979"
+  },
+  {
+   "group": "czw",
+   "name": "Blu Beach Club (Mellieħa Bay)",
+   "label": "Blu Beach Club",
+   "desc": "Restauracja przy wodzie, czynna cały rok. Tel. +356 7938 7538, rezerwacje: blubeach.com.mt/reservations.",
+   "lat": 35.966076,
+   "lng": 14.35593,
+   "rest": true,
+   "acc": "OSM",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.966076,14.35593"
+  },
+  {
+   "group": "czw",
+   "name": "Munchies Mellieħa Bay",
+   "label": "Munchies",
+   "desc": "Restauracja nad plażą z widokiem na morze. Tel. +356 2157 6416, res@munchiesmalta.com.",
+   "lat": 35.972246,
+   "lng": 14.349796,
+   "rest": true,
+   "acc": "OSM",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.972246,14.349796"
+  },
+  {
+   "group": "czw",
+   "name": "Wariant B: St George's Bay (St Julian's)",
+   "label": "B: St George's Bay",
+   "desc": "Mała piaszczysta plaża, płytko. Bolt ok. 10 min, ok. 6–9 €. Publiczne toalety, dużo kawiarni wokół.",
+   "lat": 35.92605,
+   "lng": 14.48835,
+   "rest": false,
+   "acc": "przybliżone (OSM, okolica plaży)",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=St%20George%27s%20Bay%20Beach%20St%20Julian%27s"
+  },
+  {
+   "group": "alt",
+   "name": "Mdina (wariant zapasowy)",
+   "label": "Mdina",
+   "desc": "Rano Boltem pod bramę, potem Fontanella. W środku płasko, ale gładkie kamienne płyty, po deszczu śliskie.",
+   "lat": 35.884811,
+   "lng": 14.403517,
+   "rest": false,
+   "acc": "OSM",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.884811,14.403517"
+  },
+  {
+   "group": "alt",
+   "name": "Fontanella Tea Garden",
+   "label": "Fontanella",
+   "desc": "Taras na murach, codziennie 10:00–23:30, bez rezerwacji. Słynie z ciast.",
+   "lat": 35.887164,
+   "lng": 14.403695,
+   "rest": true,
+   "acc": "OSM",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.887164,14.403695"
+  },
+  {
+   "group": "alt",
+   "name": "Sliema Ferries: Harbour Cruise (wariant zapasowy)",
+   "label": "Harbour Cruise",
+   "desc": "Rejs po porcie 90 min, zimą ok. 10:30, 12:30 i 14:45, ok. 16–20 €, bez rezerwacji. Dobre na dzień zbyt chłodny na plażę.",
+   "lat": 35.908833,
+   "lng": 14.504283,
+   "rest": false,
+   "acc": "OSM",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.908833,14.504283"
+  },
+  {
+   "group": "czw",
+   "name": "Barracuda (ostatnia kolacja)",
+   "label": "Barracuda",
+   "desc": "Po plaży, wieczorem. Balluta Bay, ok. 450 m od hotelu. Ryby i owoce morza z widokiem na zatokę. Rezerwacja.",
+   "lat": 35.915331,
+   "lng": 14.495074,
+   "rest": true,
+   "acc": "OSM",
+   "static": true,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.915331,14.495074"
+  },
+  {
+   "group": "pt",
+   "name": "Lotnisko Malta (MLA): wylot 9:25",
+   "label": "Lotnisko",
+   "desc": "Taksówka spod hotelu o 7:00, zamówiona dzień wcześniej.",
+   "lat": 35.84741,
+   "lng": 14.492287,
+   "rest": false,
+   "acc": "OSM",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.84741,14.492287"
+  },
+  {
+   "group": "alt",
+   "name": "Malta Experience (gdy pada)",
+   "label": "Malta Experience",
+   "desc": "45 min na siedząco, historia Malty. 20 €. Godziny i język polski do potwierdzenia.",
+   "lat": 35.899761,
+   "lng": 14.518767,
+   "rest": false,
+   "acc": "OSM",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.899761,14.518767"
+  },
+  {
+   "group": "alt",
+   "name": "Forty Fishes Gżira",
+   "label": "Forty Fishes",
+   "desc": "Ix-Xatt 225, Gżira. Ryby z grilla. Punkt przybliżony (ulica), link szuka po nazwie.",
+   "lat": 35.90636,
+   "lng": 14.497714,
+   "rest": true,
+   "acc": "przybliżone (ulica)",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=Forty%20Fishes%20Gzira%20225%20Triq%20ix-Xatt"
+  },
+  {
+   "group": "alt",
+   "name": "Tartarun, Marsaxlokk (zamknięte pon. i czw.)",
+   "label": "Tartarun",
+   "desc": "Restauracja rybna nad nabrzeżem.",
+   "lat": 35.841489,
+   "lng": 14.545344,
+   "rest": true,
+   "acc": "OSM",
+   "static": false,
+   "g": "https://www.google.com/maps/search/?api=1&query=35.841489,14.545344"
+  }
+ ]
+};
+(function(){
+  var groups={}; PLACES.groups.forEach(function(g){groups[g.id]=g});
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  // lista (działa bez internetu)
+  var pl=document.getElementById('plist'), html='';
+  PLACES.groups.forEach(function(g){
+    var its=PLACES.places.filter(function(p){return p.group===g.id}); if(!its.length) return;
+    html+='<h3><span class="dot" style="background:'+g.color+'"></span>'+esc(g.label)+'</h3><ul>';
+    its.forEach(function(p){
+      html+='<li><b>'+(p.rest?'🍽 ':'')+esc(p.name)+'</b><p>'+esc(p.desc)+'</p><a class="gm" href="'+esc(p.g)+'" target="_blank" rel="noopener">Otwórz w Mapach Google</a></li>';
+    });
+    html+='</ul>';
+  });
+  pl.innerHTML=html;
+  var map=null, layers={};
+  function init(){
+    if(map){map.invalidateSize();return}
+    if(!window.L){document.getElementById('map').innerHTML='<p style="padding:16px">Mapa się nie załadowała (brak internetu?). Wszystkie miejsca są na liście poniżej.</p>';return}
+    map=L.map('map',{scrollWheelZoom:false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(map);
+    var all=[], leg=document.getElementById('legend');
+    PLACES.groups.forEach(function(g){
+      var lg=L.layerGroup().addTo(map); layers[g.id]=lg;
+      PLACES.places.filter(function(p){return p.group===g.id}).forEach(function(p){
+        var m=L.circleMarker([p.lat,p.lng],{radius:p.rest?7:9,color:g.color,weight:3,fillColor:p.rest?'#ffffff':g.color,fillOpacity:p.rest?1:.85});
+        m.bindPopup('<b>'+esc(p.name)+'</b><br><small>'+esc(g.label)+'</small><br>'+esc(p.desc)+'<br><a href="'+esc(p.g)+'" target="_blank" rel="noopener">Otwórz w Mapach Google</a>');
+        m.addTo(lg); all.push([p.lat,p.lng]);
+      });
+      var b=document.createElement('button'); b.type='button'; b.setAttribute('aria-pressed','true');
+      b.innerHTML='<span class="dot" style="background:'+g.color+'"></span>'+esc(g.label);
+      b.addEventListener('click',function(){var on=b.getAttribute('aria-pressed')==='true'; if(on) map.removeLayer(lg); else lg.addTo(map); b.setAttribute('aria-pressed',on?'false':'true')});
+      leg.appendChild(b);
+    });
+    map.fitBounds(all,{padding:[20,20]});
+  }
+  window.onTabShow=function(id){ if(id==='mapa') setTimeout(init,30) };
+  if((location.hash||'')==='#mapa') setTimeout(init,30);
+})();
+
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var text = btn.dataset.copy || document.getElementById(btn.dataset.copyFrom).innerText;
+    var label = btn.textContent;
+    function done(){btn.textContent='Skopiowano';setTimeout(function(){btn.textContent=label},1500)}
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else fallback();
+    function fallback(){
+      var el = btn.dataset.copyFrom ? document.getElementById(btn.dataset.copyFrom) : document.getElementById('addr');
+      var r=document.createRange(); r.selectNodeContents(el); var s=getSelection(); s.removeAllRanges(); s.addRange(r);
+      btn.textContent='Zaznaczono, skopiuj ręcznie';
+    }
+  });
+});
+(function(){
+  var nav=document.querySelector('nav.days');
+  var links=[].slice.call(nav.querySelectorAll('a'));
+  var ids=links.map(function(a){return a.getAttribute('href').slice(1)});
+  var panels=ids.map(function(id){var p=document.getElementById(id);p.classList.add('tabpanel');p.setAttribute('role','tabpanel');return p});
+  links.forEach(function(a){a.setAttribute('role','tab')});
+  var TKEY='malta-tab';
+  function show(id,scroll){
+    if(ids.indexOf(id)<0) id=ids[0];
+    panels.forEach(function(p){p.hidden=p.id!==id});
+    links.forEach(function(a){
+      var on=a.getAttribute('href')==='#'+id;
+      a.setAttribute('aria-selected',on?'true':'false');
+      if(on && a.scrollIntoView) a.scrollIntoView({block:'nearest',inline:'center'});
+    });
+    try{localStorage.setItem(TKEY,id)}catch(e){}
+    if(window.onTabShow) window.onTabShow(id);
+    try{history.replaceState(null,'','#'+id)}catch(e){}
+    if(scroll){var top=nav.getBoundingClientRect().top+window.scrollY; if(window.scrollY>top) window.scrollTo(0,top);}
+  }
+  links.forEach(function(a){
+    a.addEventListener('click',function(e){e.preventDefault();show(a.getAttribute('href').slice(1),true)});
+  });
+  var start=(location.hash||'').slice(1);
+  if(ids.indexOf(start)<0){try{start=localStorage.getItem(TKEY)||''}catch(e){start=''}}
+  show(start,false);
+})();
+(function(){
+  var KEY='malta-checklist';
+  var state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  document.querySelectorAll('#checklist input').forEach(function(cb){
+    cb.checked=!!state[cb.id];
+    cb.addEventListener('change',function(){
+      state[cb.id]=cb.checked;
+      try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
+    });
+  });
+})();
+</script>
+</body>
+</html>
