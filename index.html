@@ -141,6 +141,22 @@ ul.fix small{color:var(--muted)}
 .rest .card p{margin:4px 0;color:var(--muted);font-size:15px}
 .mapnote{color:var(--muted);font-size:14px;margin-top:8px}
 .leaflet-popup-content{font-family:var(--body);font-size:15px;line-height:1.4}
+/* Zdjęcie w nagłówku, notki „co zabrać”, lista do spakowania */
+html{overflow-x:clip}
+header.hero{position:relative;margin-inline:calc(50% - 50vw);padding:clamp(120px,28vw,220px) max(18px,calc(50vw - 362px)) 26px;
+  background:linear-gradient(180deg,rgba(8,26,40,.05) 0%,rgba(8,26,40,.35) 45%,rgba(8,26,40,.85) 100%),url("malta-tlo.jpg") center 58%/cover no-repeat,#0f4c75;color:#fff}
+header.hero .eyebrow{color:#e8f1f7;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+header.hero h1{color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.55)}
+header.hero .chip{background:rgba(255,255,255,.9);color:#14232f;border-color:transparent}
+@media (max-width:640px){header.hero{padding-top:50vw;background:linear-gradient(180deg,rgba(8,26,40,0) 0,rgba(8,26,40,0) 36vw,rgba(8,26,40,.7) 66vw,#0d2c44 75vw,#0d2c44 100%),url("malta-tlo.jpg") center top/100% auto no-repeat,#0d2c44}header.hero .chip{font-size:14px;padding:4px 11px}}
+.wear{margin-top:8px;background:var(--harbor-soft);border-left:4px solid var(--harbor);border-radius:0 8px 8px 0;padding:6px 10px;font-size:15px;color:var(--fg)}
+.wear b{display:inline;font-size:inherit;color:var(--harbor)}
+.contact{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.contact a{font-weight:700;font-size:1.1rem;white-space:nowrap}
+.packgrid h3{font-size:1.2rem;margin-top:26px}
+.packgrid ul.check{margin-top:10px}
+.credit{margin-top:8px;font-size:13px}
+.credit a{color:inherit}
 </style>
 </head>
 <body>
@@ -150,7 +166,6 @@ ul.fix small{color:var(--muted)}
   <header class="hero">
     <div class="eyebrow">Mama · Agnieszka · Marzena</div>
     <h1>Malta z Mamą</h1>
-    <p>Spokojne tempo i dużo widoków. Jedna główna atrakcja dziennie, po południu odpoczynek. Plan poprawiony 19.10.2026 po sprawdzeniu godzin, cen i dojazdów.</p>
     <div class="facts">
       <span class="chip">2–6 listopada 2026</span>
       <span class="chip">4 noce · 3 osoby</span>
@@ -162,7 +177,6 @@ ul.fix small{color:var(--muted)}
   </header>
 
   <nav class="days" aria-label="Sekcje" role="tablist">
-    <a href="#zmiany">Co zmieniłyśmy</a>
     <a href="#podroz">Lot i hotel</a>
     <a href="#d2">Pon 2.11</a>
     <a href="#d3">Wt 3.11</a>
@@ -172,22 +186,9 @@ ul.fix small{color:var(--muted)}
     <a href="#jedzenie">Restauracje</a>
     <a href="#mapa">Mapa</a>
     <a href="#transport">Transport</a>
+    <a href="#pakowanie">Do spakowania</a>
     <a href="#lista">Do zrobienia</a>
   </nav>
-
-  <section id="zmiany">
-    <h2>Co zmieniłyśmy w planie i dlaczego</h2>
-    <p class="sub">Wynik sprawdzenia z 19.10.2026. Źródła są w zakładce „Transport” i w pliku plan-poprawiony.md.</p>
-    <ul class="fix">
-      <li><b>Decyzja: bez autobusów, bez hop-on i bez karty Explore Flex.</b> Wszędzie jeździmy Boltem lub taksówką, a w środę jedziemy na wycieczkę autem z przewodnikiem.</li>
-      <li><b>Środa: wycieczka „Malta North” z przewodnikiem</b> (65 €, Bolt na miejsce zbiórki ok. 14 €). Golden Bay i Għajn Tuffieħa z góry, Mġarr, Manikata, Ġnejna, Popeye Village, Czerwona i Biała Wieża, Madonna na klifach Aħrax, widok na Gozo i Comino.</li>
-      <li><b>Czwartek: dzień na plaży, do wyboru Mellieħa Bay albo St George's Bay.</b> Mdina i rejs po porcie zostają jako warianty zapasowe. Rejs startuje z Sliema Ferries, nie spod windy Barrakka, jak zakładał stary plan.</li>
-      <li><b>Z lotniska Bolt.</b> Odbiór jest na parkingu: z hali przylotów zjeżdżamy na poziom -1 i przechodzimy tunelem. Kurs kosztuje ok. 12–20 € za auto.</li>
-      <li>Konkatedra jest otwarta 9:00–16:45 (ostatnie wejście 16:00), a nie 9:00–16:00. Bilet seniora kosztuje 12 €. Muzeum jest zamknięte z powodu remontu.</li>
-      <li>Hotel: według listingu u pośrednika dostawki nie są możliwe. W listopadzie 2025 śniadania były podawane, wynika to z opinii gości. Klimatyzacja może nie grzać.</li>
-      <li>Strona nie miała deklaracji kodowania UTF-8, więc polskie litery mogły się źle wyświetlać. Jest poprawione.</li>
-    </ul>
-  </section>
 
   <section id="podroz">
     <h2>Lot i hotel</h2>
@@ -234,7 +235,7 @@ ul.fix small{color:var(--muted)}
     <div class="dayhead"><span class="date">2.11</span><h2>Przylot i pierwszy wieczór</h2><span class="wd">Poniedziałek</span></div>
     <span class="badge b-taxi">Bolt z lotniska</span>
     <ol class="tl">
-      <li><span class="t">15:45</span><div class="what"><b>Lądowanie na Malcie</b><p>Asysta na lotnisku czeka przy samolocie, jeśli ją zamówimy.</p></div></li>
+      <li><span class="t">15:45</span><div class="what"><b>Lądowanie na Malcie</b><p>Odbiór bagażu w hali przylotów.</p></div></li>
       <li><span class="t">ok. 16:20</span><div class="what"><b>Bolt z lotniska pod hotel</b><p>Kierowcy Bolta odbierają z parkingu: z hali przylotów (Welcomers' Hall) schodzimy na poziom -1 i idziemy tunelem na parking. Dokładny punkt pokaże aplikacja. Cel: „The Howard Hotel Sliema”. Ok. 12–20 € za auto, jazda ok. 20–25 min. Z większymi walizkami wybieramy w aplikacji większe auto (XL).</p></div></li>
       <li><span class="t">ok. 17:00</span><div class="what"><b>Zameldowanie, rozpakowanie</b><p>Od razu sprawdzamy, czy klimatyzacja grzeje. Jeśli nie, prosimy o inny pokój albo grzejnik.</p></div></li>
       <li><span class="t">18:30</span><div class="what"><b>Krótki spacer i kolacja: Fresco's</b><p>Tower Road, ok. 250 m od hotelu. W karcie m.in. grillowane kalmary i ośmiornica oraz ryba dnia. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.914802,14.496807" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
@@ -248,12 +249,12 @@ ul.fix small{color:var(--muted)}
     <span class="badge b-taxi">Bolt tam i z powrotem · ok. 1,5 km pieszo w kilku odcinkach</span>
     <ol class="tl">
       <li><span class="t">9:00</span><div class="what"><b>Śniadanie</b></div></li>
-      <li><span class="t">9:30</span><div class="what"><b>Bolt pod City Gate</b><p>Ok. 15–20 min. Za auto ok. 8–12 € według porównań cen, bez gwarancji. Od bramy płasko Republic Street, ok. 350 m do katedry.</p></div></li>
-      <li><span class="t">10:00</span><div class="what"><b>Konkatedra św. Jana</b><p>Złote wnętrze i Caravaggio. Otwarta pon–sob 9:00–16:45, ostatnie wejście 16:00. Bilety: senior 12 €, dorosły 15 €. Polski audioprzewodnik jest w cenie. Obowiązuje skromny strój, przyda się chusta na ramiona. Obcasy-szpilki są zabronione. Muzeum jest teraz zamknięte z powodu remontu. Wejście dla osób z ograniczoną mobilnością jest, choć nie do wszystkich części.</p></div></li>
-      <li><span class="t">11:30</span><div class="what"><b>Ogrody Górnej Barrakki</b><p>Ok. 300 m. Ławki, toalety i widok na Wielki Port. O 12:00 strzał z armaty salutowej (pon–sob, drugi o 16:00). Z tarasu oglądamy za darmo. Warto być 15 min wcześniej.</p></div></li>
+      <li><span class="t">9:30</span><div class="what"><b>Bolt pod City Gate</b><p>Ok. 15–20 min. Za auto ok. 8–12 € według porównań cen, bez gwarancji. Od bramy płasko Republic Street, ok. 350 m do katedry.</p><div class="wear"><b>Strój / co zabrać:</b> wygodne buty na płaskiej podeszwie (kamienne ulice bywają gładkie), okulary przeciwsłoneczne, woda, lekka kurtka, mała torebka zamiast plecaka.</div></div></li>
+      <li><span class="t">10:00</span><div class="what"><b>Konkatedra św. Jana</b><p>Złote wnętrze i Caravaggio. Otwarta pon–sob 9:00–16:45, ostatnie wejście 16:00. Bilety: dorośli 15 €, seniorzy i studenci 12 €. Polski audioprzewodnik jest w cenie. Muzeum jest teraz zamknięte z powodu remontu.</p><div class="wear"><b>Strój / co zabrać:</b> ramiona i kolana zakryte (chusta lub szal do okrycia), bez szpilek i wąskich obcasów. Mała torba: nie ma szatni, duży plecak trzeba nosić z przodu. W środku nie wolno jeść ani pić, zdjęcia bez flesza. Wydrukowane lub zapisane w telefonie bilety.</div></div></li>
+      <li><span class="t">11:30</span><div class="what"><b>Ogrody Górnej Barrakki</b><p>Ok. 300 m. Ławki, toalety i widok na Wielki Port. O 12:00 strzał z armaty salutowej (pon–sob, drugi o 16:00). Z tarasu oglądamy za darmo. Warto być 15 min wcześniej.</p><div class="wear"><b>Strój / co zabrać:</b> okulary przeciwsłoneczne i czapka, na tarasie bywa wietrznie, więc lekka kurtka; strzał z armaty jest głośny.</div></div></li>
       <li><span class="t">12:30</span><div class="what"><b>Obiad: Palazzo Preca</b><p>Strait Street 54, ok. 400 m. We wtorek otwarte 12:00–15:45, warto zarezerwować (+356 2122 6777). Świeże ryby i kuchnia maltańska. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.898778,14.512277" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
       <li><span class="t">14:15</span><div class="what"><b>Bolt do hotelu, odpoczynek</b><p>Punkt odbioru wskaże aplikacja; ruch aut w centrum Valletty jest ograniczony.</p></div></li>
-      <li><span class="t">16:30</span><div class="what"><b>Kawa przy Exiles i zachód słońca ok. 17:05</b></div></li>
+      <li><span class="t">16:30</span><div class="what"><b>Kawa przy Exiles i zachód słońca ok. 17:05</b><div class="wear"><b>Strój / co zabrać:</b> sweter lub lekka kurtka: po zachodzie słońca nad morzem robi się chłodniej.</div></div></li>
       <li><span class="t">19:00</span><div class="what"><b>Kolacja blisko hotelu</b><p>Fresco's albo Forty Fishes (Gżira, krótki kurs Boltem).</p></div></li>
     </ol>
     <div class="tip"><strong>Wersja dłuższa</strong>Można zostać w Valletcie dłużej i obejrzeć drugi strzał o 16:00. Wtedy obiad jest późniejszy, a Barrakkę zostawiamy na koniec.</div>
@@ -263,13 +264,15 @@ ul.fix small{color:var(--muted)}
   <section class="day" id="d4">
     <div class="dayhead"><span class="date">4.11</span><h2>Północ Malty autem z przewodnikiem</h2><span class="wd">Środa</span></div>
     <span class="badge b-taxi">wycieczka „Malta North” · 65 € · podjazd autem pod punkty widokowe</span>
+    <div class="contact"><b>Przewodniczka:</b> Małgorzata Czuba, tel. <a href="tel:+48512783032">+48 512 783 032</a></div>
+    <div class="wear"><b>Strój / co zabrać:</b> wygodne buty z przyczepną podeszwą (przy punktach widokowych bywa nierówny, kamienisty grunt), lekka kurtka chroniąca przed wiatrem, okulary przeciwsłoneczne, czapka, krem z filtrem, woda i coś do przegryzienia, naładowany telefon do zdjęć.</div>
     <ol class="tl">
       <li><span class="t">rano</span><div class="what"><b>Bolt na miejsce zbiórki</b><p>Ok. 14 €. Godzinę i miejsce zbiórki bierzemy z potwierdzenia rezerwacji; tu ich jeszcze nie mamy.</p></div></li>
       <li><span class="t">1</span><div class="what"><b>Golden Bay i Għajn Tuffieħa z góry</b><p>Punkt widokowy przy wieży Għajn Tuffieħa, widać obie zatoki. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.930865,14.343339" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
       <li><span class="t">2</span><div class="what"><b>Mġarr (kościół) i wioska Manikata</b><p><a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.919513,14.366118" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
       <li><span class="t">3</span><div class="what"><b>Zatoka Ġnejna</b><p><a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.922134,14.341877" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
       <li><span class="t">4</span><div class="what"><b>Anchor Bay z góry i Popeye Village</b><p>Punkt widokowy nad dawnym planem filmowym. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.959903,14.341065" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
-      <li><span class="t">5</span><div class="what"><b>Półwysep Aħrax: Czerwona Wieża (St Agatha's Tower) i Biała Wieża</b><p><a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.974675,14.342853" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
+      <li><span class="t">5</span><div class="what"><b>Półwysep Aħrax: Czerwona Wieża (St Agatha's Tower) i Biała Wieża</b><div class="wear"><b>Strój / co zabrać:</b> na cyplu i klifach zwykle mocno wieje: kurtka zapięta, czapka, która nie odfrunie.</div><p><a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.974675,14.342853" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
       <li><span class="t">6</span><div class="what"><b>Madonna na klifach Aħrax, widok na Gozo, Comino i Blue Lagoon</b><p><a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.988374,14.375494" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
       <li><span class="t">po</span><div class="what"><b>Powrót, odpoczynek w hotelu, zachód słońca ok. 17:05 przy Exiles</b></div></li>
       <li><span class="t">19:00</span><div class="what"><b>Kolacja: Fresco's</b><p>Ok. 250 m od hotelu.</p></div></li>
@@ -286,6 +289,7 @@ ul.fix small{color:var(--muted)}
 
     <div class="variant">
       <h3>Wariant A: Mellieħa Bay (Għadira)</h3>
+      <div class="wear"><b>Strój / co zabrać:</b> kostium kąpielowy, ręcznik, krem z filtrem, okulary i czapka, buty do wody (opcjonalnie), koc lub mata (leżaków nie będzie), lekka kurtka lub sweter, bo listopadowe popołudnia i wieczory są chłodniejsze; karta lub gotówka na obiad.</div>
       <div class="pc">
         <div><b>Za</b><ul><li>Naturalny piasek, bardzo płytko i łagodnie (15–60 cm na długim odcinku)</li><li>Duża plaża (ok. 800 m), osłonięta zatoka</li><li>Restauracje z widokiem na morze czynne też jesienią</li></ul></div>
         <div><b>Przeciw</b><ul><li>Dalej: Bolt ok. 30–40 min, ok. 22–28 € w jedną stronę</li><li>Słońce zachodzi za wzgórzem, nie nad morzem</li><li>Między restauracjami a plażą biegnie ruchliwa droga</li></ul></div>
@@ -303,6 +307,7 @@ ul.fix small{color:var(--muted)}
 
     <div class="variant">
       <h3>Wariant B: St George's Bay (St Julian's)</h3>
+      <div class="wear"><b>Strój / co zabrać:</b> kostium kąpielowy, ręcznik, krem z filtrem, okulary i czapka, buty do wody (opcjonalnie), koc lub mata (leżaków nie będzie), lekka kurtka lub sweter, bo listopadowe popołudnia i wieczory są chłodniejsze; karta lub gotówka na obiad.</div>
       <div class="pc">
         <div><b>Za</b><ul><li>Blisko: Bolt ok. 10 min, ok. 6–9 €</li><li>Piasek, płytko i spokojnie</li><li>Publiczne toalety i prysznice, wokół dużo kawiarni</li><li>W ciągu dnia łatwo wrócić do hotelu</li></ul></div>
         <div><b>Przeciw</b><ul><li>Mała plaża, piasek nawieziony i dość gruby</li><li>Miejskie otoczenie: hotele, a obok trwa budowa</li><li>W opiniach zdarzają się uwagi o porządku na plaży</li></ul></div>
@@ -318,7 +323,14 @@ ul.fix small{color:var(--muted)}
       <li><span class="t">19:00</span><div class="what"><b>Ostatnia kolacja: Barracuda nad Balluta Bay</b><p>Ok. 450 m od hotelu, warto zarezerwować. Wieczorem pakowanie i odbiór breakfast boxa. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.915331,14.495074" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
     </ol>
 
-    <div class="tip"><strong>Warianty zapasowe i na deszcz</strong><b>Mdina z Fontanellą</b>: rano Boltem (ok. 25–30 min), taras na murach z widokiem, czynny codziennie 10:00–23:30. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.884811,14.403517" target="_blank" rel="noopener">Otwórz w Mapach Google</a><br><b>Harbour Cruise z Sliema Ferries</b>: 90 min, zimą ok. 10:30, 12:30 i 14:45, ok. 16–20 €, bez rezerwacji. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.908833,14.504283" target="_blank" rel="noopener">Otwórz w Mapach Google</a><br><b>Malta Experience</b> w Valletcie: 45-minutowy pokaz o historii Malty (20 €; godziny do potwierdzenia).</div>
+    <div class="tip"><strong>Warianty zapasowe i na deszcz</strong>
+      <p style="margin:6px 0 0"><b>Mdina z Fontanellą</b>: rano Boltem (ok. 25–30 min), taras na murach z widokiem, czynny codziennie 10:00–23:30. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.884811,14.403517" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p>
+      <div class="wear"><b>Strój / co zabrać:</b> wygodne buty z przyczepną podeszwą (gładkie kamienne płyty, po deszczu śliskie), sweter; do katedry w Mdinie ramiona i kolana zakryte.</div>
+      <p style="margin:10px 0 0"><b>Harbour Cruise z Sliema Ferries</b>: 90 min, zimą ok. 10:30, 12:30 i 14:45, ok. 16–20 €, bez rezerwacji. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.908833,14.504283" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p>
+      <div class="wear"><b>Strój / co zabrać:</b> warstwa chroniąca przed wiatrem (na górnym pokładzie wieje i jest chłodniej), okulary przeciwsłoneczne, czapka; buty na płaskiej podeszwie na pokład.</div>
+      <p style="margin:10px 0 0"><b>Malta Experience</b> w Valletcie: 45-minutowy pokaz o historii Malty (20 €; godziny do potwierdzenia).</p>
+      <div class="wear"><b>Strój / co zabrać:</b> nic specjalnego; w deszczowy dzień parasolka i kurtka z kapturem na drogę.</div>
+    </div>
     <div class="warn"><strong>Pomijamy</strong>Błękitną Grotę: do łódek schodzi się stromo i trzeba wsiadać do kołyszącej się łodzi, a rejsy zależą od pogody.</div>
   </section>
 
@@ -329,7 +341,7 @@ ul.fix small{color:var(--muted)}
     <ol class="tl">
       <li><span class="t">6:45</span><div class="what"><b>Wymeldowanie, breakfast box</b><p>Hotelowe śniadanie zaczyna się o 7:30, więc nie zdążymy.</p></div></li>
       <li><span class="t">7:00</span><div class="what"><b>Taksówka na lotnisko</b><p>Ok. 20–25 min. Zamówiona dzień wcześniej przez recepcję albo w eCabs (stała cena przy rezerwacji).</p></div></li>
-      <li><span class="t">7:30</span><div class="what"><b>Lotnisko, asysta, kontrola</b></div></li>
+      <li><span class="t">7:30</span><div class="what"><b>Lotnisko, kontrola bezpieczeństwa</b></div></li>
       <li><span class="t">9:25</span><div class="what"><b>Wylot FR5227</b></div></li>
       <li><span class="t">12:15</span><div class="what"><b>Lądowanie w Poznaniu</b></div></li>
     </ol>
@@ -396,7 +408,7 @@ ul.fix small{color:var(--muted)}
           <li><a href="https://timesofmalta.com/article/airport-ride-hailing-cab-pick-up-point-car-park.1112975" target="_blank" rel="noopener">Bolt/eCabs: odbiór z parkingu na lotnisku</a></li>
           <li><a href="https://www.hemenhesap.com/en/malta-airport-taxi-fare" target="_blank" rel="noopener">Stałe ceny białych taksówek (serwis nieoficjalny)</a></li>
           <li><a href="https://www.fontanellateagarden.com.mt/contact-us" target="_blank" rel="noopener">Fontanella: godziny</a></li>
-          <li><a href="https://maltaaudioguide.com/mdina" target="_blank" rel="noopener">Mdina: nawierzchnia i dostępność</a></li>
+          <li><a href="https://maltaaudioguide.com/mdina" target="_blank" rel="noopener">Mdina: przewodnik</a></li>
           <li><a href="https://www.maltainfoguide.com/mellieha-bay.html" target="_blank" rel="noopener">Mellieħa Bay: przewodnik</a></li>
           <li><a href="https://www.beaches.mt/beaches/st-georges-bay-st-julians" target="_blank" rel="noopener">St George's Bay: warunki i udogodnienia</a></li>
           <li><a href="https://www.blubeach.com.mt/" target="_blank" rel="noopener">Blu Beach Club</a> · <a href="https://www.munchies.mt/munchies-bistro" target="_blank" rel="noopener">Munchies Mellieħa Bay</a></li>
@@ -406,7 +418,7 @@ ul.fix small{color:var(--muted)}
       <div class="card">
         <h3>Aplikacje do pobrania</h3>
         <ul>
-          <li><b>Ryanair</b>: karty pokładowe, odprawa online, asysta na lotnisku</li>
+          <li><b>Ryanair</b>: karty pokładowe, odprawa online</li>
                     <li><b>Revolut</b>: płatności w euro</li>
           <li><b>Bolt</b>: taksówki, zwykle najtańszy</li>
           <li><b>eCabs</b>: taksówki z rezerwacją i stałą ceną, dobre na 6.11 rano i powrót z Golden Bay</li>
@@ -425,26 +437,87 @@ ul.fix small{color:var(--muted)}
     </div>
   </section>
 
+  <section id="pakowanie">
+    <h2>Do spakowania</h2>
+    <p class="sub">Początek listopada: w dzień ok. 20–23°C, wieczorem chłodniej, morze ok. 21–22°C, możliwy wiatr i przelotny deszcz. Zaznaczenia zapamiętują się w tej przeglądarce.</p>
+    <div class="tip"><strong>Bagaż w Ryanair</strong>W cenie biletu każda osoba ma jedną małą torbę 40 × 30 × 20 cm pod siedzenie. Walizka 10 kg (55 × 40 × 20 cm) wchodzi na pokład tylko z wykupionym „Priority &amp; 2 Cabin Bags”; inaczej trzeba dokupić bagaż rejestrowany 10 kg lub 20 kg. Torby większe niż wykupione na bramce trafiają do luku za opłatą. Sprawdźcie w rezerwacji, co mamy. <a href="https://help.ryanair.com/hc/en-us/categories/12489112419089-Bag-Rules" target="_blank" rel="noopener">Zasady Ryanair</a></div>
+    <div class="packgrid">
+      <h3>Dokumenty</h3>
+      <ul class="check">
+      <li><label><input type="checkbox" id="c10"><span>Dowód osobisty lub paszport (ważny)<small>na lot i do zameldowania w hotelu</small></span></label></li>
+      <li><label><input type="checkbox" id="p_kp"><span>Karty pokładowe w aplikacji Ryanair<small>po odprawie online; dla pewności zrzut ekranu lub wydruk</small></span></label></li>
+      <li><label><input type="checkbox" id="p_ekuz"><span>Karta EKUZ z NFZ<small>działa na Malcie jak w całej UE</small></span></label></li>
+      <li><label><input type="checkbox" id="p_ubezp"><span>Ubezpieczenie turystyczne<small>numer polisy i telefon assistance zapisane w telefonie</small></span></label></li>
+      <li><label><input type="checkbox" id="p_rez"><span>Potwierdzenia: hotel (Booking), wycieczka w środę, bilety do Konkatedry<small>w telefonie, najlepiej też offline</small></span></label></li>
+      </ul>
+      <h3>Pieniądze i płatności</h3>
+      <ul class="check">
+      <li><label><input type="checkbox" id="p_kk"><span>Karta kredytowa Visa lub Mastercard<small>hotel wymaga jej przy zameldowaniu</small></span></label></li>
+      <li><label><input type="checkbox" id="p_rev"><span>Revolut lub druga karta płatnicza<small>płatności w euro, Bolt w aplikacji</small></span></label></li>
+      <li><label><input type="checkbox" id="c16"><span>Gotówka w euro w drobnych<small>napiwki, kawiarnie, drobne zakupy</small></span></label></li>
+      </ul>
+      <h3>Ubrania</h3>
+      <ul class="check">
+      <li><label><input type="checkbox" id="c7"><span>Lekka kurtka przeciwwiatrowa, najlepiej z kapturem<small>w listopadzie bywa wietrznie i może przelotnie padać</small></span></label></li>
+      <li><label><input type="checkbox" id="p_swet"><span>Ciepły sweter lub polar na wieczory<small>w dzień ok. 20–23°C, wieczorem wyraźnie chłodniej</small></span></label></li>
+      <li><label><input type="checkbox" id="p_kosz"><span>Koszulki z krótkim i długim rękawem, lekkie spodnie</span></label></li>
+      <li><label><input type="checkbox" id="p_chusta"><span>Chusta lub szal<small>do Konkatedry: ramiona i kolana zakryte</small></span></label></li>
+      <li><label><input type="checkbox" id="p_buty"><span>Wygodne buty z przyczepną płaską podeszwą<small>kamienne ulice Valletty i Mdiny bywają gładkie, przy punktach widokowych grunt jest nierówny</small></span></label></li>
+      <li><label><input type="checkbox" id="p_sand"><span>Sandały lub klapki</span></label></li>
+      <li><label><input type="checkbox" id="p_piz"><span>Cieplejsza piżama<small>w opiniach gości hotelowa klimatyzacja nie zawsze grzała</small></span></label></li>
+      <li><label><input type="checkbox" id="p_paras"><span>Mała składana parasolka</span></label></li>
+      </ul>
+      <h3>Plaża</h3>
+      <ul class="check">
+      <li><label><input type="checkbox" id="c19"><span>Kostiumy kąpielowe<small>morze ok. 21–22°C</small></span></label></li>
+      <li><label><input type="checkbox" id="p_rec"><span>Ręczniki plażowe (szybkoschnące)</span></label></li>
+      <li><label><input type="checkbox" id="p_spf"><span>Krem z filtrem SPF 30–50 i pomadka z filtrem<small>słońce w południe wciąż mocne</small></span></label></li>
+      <li><label><input type="checkbox" id="p_bwoda"><span>Buty do wody<small>opcjonalnie</small></span></label></li>
+      <li><label><input type="checkbox" id="p_koc"><span>Koc lub mata plażowa<small>po 31.10 nie ma leżaków</small></span></label></li>
+      <li><label><input type="checkbox" id="p_okul"><span>Okulary przeciwsłoneczne i czapka</span></label></li>
+      <li><label><input type="checkbox" id="p_torba"><span>Torba plażowa i woreczek na mokre rzeczy</span></label></li>
+      </ul>
+      <h3>Kosmetyki i apteczka</h3>
+      <ul class="check">
+      <li><label><input type="checkbox" id="c8"><span>Leki stałe z zapasem na 2–3 dni<small>w bagażu podręcznym, w oryginalnych opakowaniach</small></span></label></li>
+      <li><label><input type="checkbox" id="p_apt"><span>Mała apteczka<small>plastry, środek przeciwbólowy, coś na żołądek i na chorobę lokomocyjną (auto, rejs)</small></span></label></li>
+      <li><label><input type="checkbox" id="p_kosm"><span>Kosmetyki w małych opakowaniach<small>w bagażu podręcznym płyny do 100 ml</small></span></label></li>
+      <li><label><input type="checkbox" id="p_zat"><span>Zatyczki do uszu<small>ściany w hotelu bywają cienkie</small></span></label></li>
+      <li><label><input type="checkbox" id="p_chust"><span>Chusteczki i żel do rąk</span></label></li>
+      </ul>
+      <h3>Elektronika</h3>
+      <ul class="check">
+      <li><label><input type="checkbox" id="c6"><span>Przejściówki do gniazdek typu G (brytyjskich)<small>na Malcie są gniazdka jak w Wielkiej Brytanii; najlepiej jedna na osobę albo przejściówka plus mała listwa</small></span></label></li>
+      <li><label><input type="checkbox" id="p_lad"><span>Ładowarki i kable do telefonów</span></label></li>
+      <li><label><input type="checkbox" id="p_pb"><span>Powerbank<small>tylko w bagażu podręcznym, nie w rejestrowanym</small></span></label></li>
+      <li><label><input type="checkbox" id="p_apps"><span>Telefon z aplikacjami: Ryanair, Bolt, eCabs, Booking, Revolut<small>roaming w UE działa na Malcie jak w Polsce</small></span></label></li>
+      <li><label><input type="checkbox" id="p_sluch"><span>Słuchawki<small>m.in. do audioprzewodnika i w samolocie</small></span></label></li>
+      </ul>
+      <h3>Do bagażu podręcznego</h3>
+      <ul class="check">
+      <li><label><input type="checkbox" id="p_bp_dok"><span>Dokumenty, karty, telefon i powerbank</span></label></li>
+      <li><label><input type="checkbox" id="p_bp_lek"><span>Leki i mała apteczka</span></label></li>
+      <li><label><input type="checkbox" id="p_bp_pl"><span>Płyny do 100 ml w przezroczystym woreczku 1 l<small>na wszelki wypadek trzymamy się tej zasady na obu lotniskach</small></span></label></li>
+      <li><label><input type="checkbox" id="p_bp_but"><span>Pusta butelka na wodę<small>napełnić po kontroli bezpieczeństwa</small></span></label></li>
+      <li><label><input type="checkbox" id="p_bp_swet"><span>Sweter lub szal na samolot</span></label></li>
+      <li><label><input type="checkbox" id="c13"><span>Mała torba lub plecak na dzień<small>na środową wycieczkę i plażę: woda, przekąski</small></span></label></li>
+      </ul>
+    </div>
+  </section>
+
   <section id="lista">
     <h2>Do zrobienia przed wyjazdem</h2>
     <p class="sub">Zaznaczenia zapamiętują się w tej przeglądarce.</p>
     <ul class="check" id="checklist">
       <li><label><input type="checkbox" id="c1"><span>Wiadomość do hotelu przez Booking<small>schodki, niskie piętro, pokój z oknem, grzanie, dostawka, śniadania, breakfast box</small></span></label></li>
       <li><label><input type="checkbox" id="c0"><span>Decyzja o rezerwacji do 27.10<small>do tego dnia odwołanie bezpłatne, potem hotel pobiera 430 €</small></span></label></li>
-      <li><label><input type="checkbox" id="c10"><span>Dowód osobisty i karta kredytowa do zameldowania</span></label></li>
-      <li><label><input type="checkbox" id="c2"><span>Asysta na lotnisku (Ryanair)<small>zamówić min. 48 h przed lotem, osobno tam i z powrotem</small></span></label></li>
+      <li><label><input type="checkbox" id="c2"><span>Asysta na lotnisku – do decyzji<small>jeśli tak, zamawia się w Ryanair min. 48 h przed lotem, osobno tam i z powrotem</small></span></label></li>
       <li><label><input type="checkbox" id="c18"><span>Rezerwacja wycieczki z przewodnikiem „Malta North” na śr 4.11<small>65 €; potwierdzić godzinę i miejsce zbiórki, czas trwania, przerwy na toaletę i posiłek, podjazd pod punkty widokowe</small></span></label></li>
-      <li><label><input type="checkbox" id="c14"><span>Bilety do Konkatedry online na wt 3.11<small>senior 12 €, dorośli 15 €, bilet ważny 7 dni od wybranej daty</small></span></label></li>
+      <li><label><input type="checkbox" id="c14"><span>Bilety do Konkatedry online na wt 3.11<small>dorośli 15 €, seniorzy i studenci 12 €; bilet ważny 7 dni od wybranej daty</small></span></label></li>
       <li><label><input type="checkbox" id="c15"><span>Rezerwacje: Palazzo Preca (wt, obiad) i Barracuda (czw, kolacja)<small>w czwartek także stolik na obiad w Blu Beach Club albo Munchies, jeśli wybieramy wariant A</small></span></label></li>
-      <li><label><input type="checkbox" id="c16"><span>Gotówka w euro w drobnych<small>dgħajsa, napiwki, drobne zakupy</small></span></label></li>
-      <li><label><input type="checkbox" id="c13"><span>Woda i przekąski na środową wycieczkę</span></label></li>
-      <li><label><input type="checkbox" id="c19"><span>Na czwartkową plażę: kostiumy, ręczniki, buty do wody, krem z filtrem<small>do tego koc lub mata (leżaków nie będzie), okulary, czapka</small></span></label></li>
       <li><label><input type="checkbox" id="c4"><span>Pobrać aplikacje i założyć konta w Polsce<small>Ryanair, Revolut, Bolt, eCabs, Booking</small></span></label></li>
       <li><label><input type="checkbox" id="c11"><span>Doładować Revolut w euro</span></label></li>
       <li><label><input type="checkbox" id="c5"><span>Odprawa online dla wszystkich trzech osób</span></label></li>
-      <li><label><input type="checkbox" id="c6"><span>Przejściówki do gniazdek typu G</span></label></li>
-      <li><label><input type="checkbox" id="c7"><span>Lekka kurtka, ciepły sweter, buty z dobrą podeszwą (śliska Mdina), chusta do katedry</span></label></li>
-      <li><label><input type="checkbox" id="c8"><span>Leki w bagażu podręcznym</span></label></li>
       <li><label><input type="checkbox" id="c9"><span>Taksówka na lotnisko na 6.11, godz. 7:00<small>zamówić 5.11 przez recepcję albo eCabs</small></span></label></li>
     </ul>
 
@@ -453,7 +526,9 @@ ul.fix small{color:var(--muted)}
     <p style="margin:10px 0 0"><button class="copy" type="button" data-copy-from="msg">Kopiuj wiadomość</button></p>
   </section>
 
-  <footer>Sprawdzone 19.10.2026. Ceny taksówek są orientacyjne. Godziny restauracji przy plaży, Malta Experience i rejsu potwierdźcie na miejscu, bo poza sezonem mogą się zmienić.</footer>
+  <footer>Sprawdzone 19.10.2026. Ceny taksówek są orientacyjne. Godziny restauracji przy plaży, Malta Experience i rejsu potwierdźcie na miejscu, bo poza sezonem mogą się zmienić.
+    <div class="credit">Zdjęcie w nagłówku: „<a href="https://commons.wikimedia.org/wiki/File:Valletta_from_Sliema_-_panoramio.jpg" target="_blank" rel="noopener">Valletta from Sliema</a>”, autor: Keith Ruffles, licencja <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>, Wikimedia Commons (zmniejszone).</div>
+  </footer>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -562,7 +637,7 @@ var PLACES = {
    "group": "wt",
    "name": "Konkatedra św. Jana",
    "label": "Konkatedra",
-   "desc": "Pon–sob 9:00–16:45, ostatnie wejście 16:00. Senior 12 €, dorosły 15 €. Audioprzewodnik po polsku.",
+   "desc": "Pon–sob 9:00–16:45, ostatnie wejście 16:00. Dorośli 15 €, seniorzy i studenci 12 €. Audioprzewodnik po polsku.",
    "lat": 35.897696,
    "lng": 14.512629,
    "rest": false,
@@ -814,7 +889,7 @@ var PLACES = {
    "group": "alt",
    "name": "Malta Experience (gdy pada)",
    "label": "Malta Experience",
-   "desc": "45 min na siedząco, historia Malty. 20 €. Godziny i język polski do potwierdzenia.",
+   "desc": "45-minutowy pokaz o historii Malty. 20 €. Godziny i język polski do potwierdzenia.",
    "lat": 35.899761,
    "lng": 14.518767,
    "rest": false,
@@ -933,7 +1008,7 @@ document.querySelectorAll('.copy').forEach(function(btn){
   var KEY='malta-checklist';
   var state={};
   try{state=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
-  document.querySelectorAll('#checklist input').forEach(function(cb){
+  document.querySelectorAll('ul.check input').forEach(function(cb){
     cb.checked=!!state[cb.id];
     cb.addEventListener('change',function(){
       state[cb.id]=cb.checked;
