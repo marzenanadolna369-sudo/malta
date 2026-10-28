@@ -155,6 +155,10 @@ ol.tl li.opt{background:linear-gradient(90deg,var(--harbor-soft),transparent 70%
 .opttag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--harbor);margin-bottom:2px}
 .stops{margin:6px 0 0;padding-left:20px}
 .stops li{margin:6px 0}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.thumbs a{display:block;line-height:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.thumbs img{width:104px;height:72px;object-fit:cover;display:block}
+.meet{margin-top:8px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--luzzu);border-radius:0 8px 8px 0;padding:8px 12px;color:var(--fg)}
 .contact{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
 .contact a{font-weight:700;font-size:1.1rem;white-space:nowrap}
 .packgrid h3{font-size:1.2rem;margin-top:26px}
@@ -240,7 +244,7 @@ ol.tl li.opt{background:linear-gradient(90deg,var(--harbor-soft),transparent 70%
     <span class="badge b-taxi">opłacony transfer z lotniska (Talixo)</span>
     <ol class="tl">
       <li><span class="t">15:45</span><div class="what"><b>Lądowanie na Malcie</b><p>Odbiór bagażu w hali przylotów.</p></div></li>
-      <li><span class="t">15:45</span><div class="what"><b>Transfer z lotniska pod hotel (Talixo)</b><p>Zarezerwowany i opłacony transfer: Talixo (Talixo Services GmbH), klasa auta Standard, odbiór w pon 2.11 o 15:45, zapłacone 97,29 zł. W cenie jest monitorowanie lotu, więc przy opóźnieniu samolotu kierowca poczeka. Miejsce spotkania z kierowcą i kontakt do niego są w mailu z potwierdzeniem od Talixo albo w „Zarządzaj rezerwacją”; sprawdzamy je przed wylotem i mamy potwierdzenie w telefonie. Cel: The Howard Hotel, Sliema; jazda ok. 20–25 min.</p></div></li>
+      <li><span class="t">15:45</span><div class="what"><b>Transfer z lotniska pod hotel (Talixo)</b><p>Zarezerwowany i opłacony transfer: Talixo (Talixo Services GmbH), klasa auta Standard, odbiór w pon 2.11 o 15:45, zapłacone 97,29 zł. W cenie jest monitorowanie lotu, więc przy opóźnieniu samolotu kierowca poczeka. Nr rezerwacji w mailu Talixo. Kontakt do kierowcy: w mailu od Talixo albo w „Zarządzaj rezerwacją”. Cel: The Howard Hotel, Sliema; jazda ok. 20–25 min.</p><div class="meet"><b style="display:inline">Miejsce spotkania z kierowcą:</b> hala przylotów, przy bankomacie HSBC (obok Informacji Turystycznej i toalet).<div class="thumbs"><a href="spotkanie-1.jpg" target="_blank" rel="noopener"><img src="spotkanie-1.jpg" alt="Miejsce spotkania z kierowcą: bankomat HSBC w hali przylotów, zdjęcie 1" loading="lazy" width="104" height="72"></a><a href="spotkanie-2.jpg" target="_blank" rel="noopener"><img src="spotkanie-2.jpg" alt="Miejsce spotkania z kierowcą: bankomat HSBC w hali przylotów, zdjęcie 2" loading="lazy" width="104" height="72"></a><a href="spotkanie-3.jpg" target="_blank" rel="noopener"><img src="spotkanie-3.jpg" alt="Miejsce spotkania z kierowcą: bankomat HSBC w hali przylotów, zdjęcie 3" loading="lazy" width="104" height="72"></a></div></div></div></li>
       <li><span class="t">ok. 17:00</span><div class="what"><b>Zameldowanie, rozpakowanie</b><p>Od razu sprawdzamy, czy klimatyzacja grzeje. Jeśli nie, prosimy o inny pokój albo grzejnik.</p></div></li>
       <li><span class="t">18:30</span><div class="what"><b>Krótki spacer i kolacja: Fresco's</b><p>Tower Road, ok. 250 m od hotelu. W karcie m.in. grillowane kalmary i ośmiornica oraz ryba dnia. <a class="gm" href="https://www.google.com/maps/search/?api=1&query=35.914802,14.496807" target="_blank" rel="noopener">Otwórz w Mapach Google</a></p></div></li>
     </ol>
@@ -538,7 +542,7 @@ ol.tl li.opt{background:linear-gradient(90deg,var(--harbor-soft),transparent 70%
       <li><label><input type="checkbox" id="c4"><span>Pobrać aplikacje i założyć konta w Polsce<small>Ryanair, Revolut, Bolt, eCabs, Booking</small></span></label></li>
       <li><label><input type="checkbox" id="c11"><span>Doładować Revolut w euro</span></label></li>
       <li><label><input type="checkbox" id="c5"><span>Odprawa online dla wszystkich trzech osób</span></label></li>
-      <li><label><input type="checkbox" id="c20"><span>Transfer z lotniska 2.11: sprawdzić szczegóły odbioru (Talixo)<small>już opłacony (97,29 zł); miejsce spotkania i kontakt do kierowcy w mailu z potwierdzeniem albo w „Zarządzaj rezerwacją”</small></span></label></li>
+      <li><label><input type="checkbox" id="c20"><span>Transfer z lotniska 2.11 (Talixo): mieć pod ręką mail lub aplikację Talixo<small>tam jest kontakt do kierowcy; transfer opłacony, miejsce spotkania znane (bankomat HSBC w hali przylotów)</small></span></label></li>
       <li><label><input type="checkbox" id="c9"><span>Taksówka na lotnisko na 6.11, godz. 7:00<small>zamówić 5.11 przez recepcję albo eCabs</small></span></label></li>
     </ul>
 
@@ -610,7 +614,7 @@ var PLACES = {
    "group": "pon",
    "name": "Lotnisko Malta (MLA)",
    "label": "Lotnisko (przylot pon, wylot pt)",
-   "desc": "Przylot 15:45. Opłacony transfer Talixo (klasa Standard, odbiór 15:45, monitorowanie lotu). Miejsce spotkania i kontakt do kierowcy: mail z potwierdzeniem albo „Zarządzaj rezerwacją”.",
+   "desc": "Przylot 15:45. Opłacony transfer Talixo (klasa Standard, odbiór 15:45, monitorowanie lotu). Kierowca czeka w hali przylotów przy bankomacie HSBC (obok Informacji Turystycznej i toalet).",
    "lat": 35.84741,
    "lng": 14.492287,
    "rest": false,
