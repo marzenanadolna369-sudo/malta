@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vlog · Malta 2–6 listopada 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  --sand:#f6efe2;
+  --cream:#fffaf2;
+  --ink:#1c3a45;
+  --muted:#5d6f72;
+  --turquoise:#1aa6b8;
+  --turquoise-deep:#0e7c8a;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:17px;
+  line-height:1.5;
+  background:
+    radial-gradient(1200px 480px at 50% -8%, #fff 0%, transparent 58%),
+    linear-gradient(180deg, #fff6e4 0%, var(--sand) 42%, #f3e4c4 100%);
+}
+.stripe{height:8px;background:linear-gradient(90deg,#e07a3d 0 25%,#f2c14e 25% 50%,var(--turquoise) 50% 75%,#2f9e8f 75%)}
+.wrap{max-width:480px;margin:0 auto;padding:28px 18px 48px;text-align:center}
+a.back{color:var(--turquoise-deep);font-weight:700;text-decoration:none}
+a.back:hover{text-decoration:underline}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(1.8rem,6vw,2.5rem);line-height:1.15;margin:18px 0 8px;color:var(--turquoise-deep)}
+p.lead{margin:0 0 20px;color:var(--muted)}
+.frame{
+  background:var(--cream);
+  border:3px solid var(--turquoise);
+  border-radius:18px;
+  padding:10px;
+  box-shadow:0 16px 40px rgba(14,124,138,.16);
+}
+video{
+  display:block;
+  width:auto;
+  max-width:100%;
+  max-height:90vh;
+  margin:0 auto;
+  border-radius:12px;
+  background:#12343a;
+}
+:focus-visible{outline:3px solid var(--turquoise);outline-offset:3px}
+</style>
+</head>
+<body>
+<div class="stripe" aria-hidden="true"></div>
+<main class="wrap">
+  <a class="back" href="index.html">← Plan wyjazdu</a>
+  <h1>Vlog · Malta 2–6 listopada 2026</h1>
+  <p class="lead">Film z wyjazdu.</p>
+  <div class="frame">
+    <video controls playsinline preload="metadata" src="vlog/malta-vlog.mp4">
+      Twoja przeglądarka nie odtwarza tego filmu.
+      <a href="vlog/malta-vlog.mp4">Otwórz plik wideo</a>.
+    </video>
+  </div>
+</main>
+</body>
+</html>
